@@ -1,0 +1,6 @@
+name: py37
+channels:
+  - conda-forge
+dependencies:
+  - numpy=*
+  - scipy=*
