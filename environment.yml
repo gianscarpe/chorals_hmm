@@ -1,4 +1,4 @@
-name: hmm
+name: chorals
 channels:
   - conda-forge
 dependencies:
