@@ -122,6 +122,7 @@ venv.bak/
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
+.idea/*
 
 # Gradle
 .idea/**/gradle.xml
@@ -140,17 +141,6 @@ venv.bak/
 *.ipr
 
 # CMake
-cmake-build-*/
-
-# Mongo Explorer plugin
-.idea/**/mongoSettings.xml
-
-# File-based project format
-*.iws
-
-# IntelliJ
-out/
-
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 
@@ -168,6 +158,8 @@ fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
+
+.idea/*
 
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
