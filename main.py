@@ -40,3 +40,7 @@ for st in itertools.product(*[range(K)] * M):
 
 hmm = FullDiscreteFactorialHMM(params=params, n_steps=n_steps,
                                calculate_on_init=True)
+
+training_set = np.array([1, 0, 1]) # parsed training set state
+
+hmm.EM(training_set,n_iterations=30)
