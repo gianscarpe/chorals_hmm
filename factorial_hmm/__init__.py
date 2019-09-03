@@ -1,2 +1,2 @@
-from factorial_hmm.factorial_hmm import FactorialHMMDiscreteObserved
-
+from factorial_hmm.factorial_hmm import FactorialHMMDiscreteObserved, \
+    FullDiscreteFactorialHMM, Indices
