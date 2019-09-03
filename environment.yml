@@ -1,4 +1,4 @@
-name: py37
+name: hmm
 channels:
   - conda-forge
 dependencies:
