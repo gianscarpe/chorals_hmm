@@ -558,8 +558,7 @@ class FactorialHMMDiscreteObserved(FactorialHMM):
         self.all_observed_states = np.array(list(itertools.product(
             *[range(size) for size in self.observed_indices.field_sizes])))
 
-        self.obs_given_hidden = np.ones([
-                                            self.n_steps] +
+        self.obs_given_hidden = np.ones([self.n_steps] +
                                         self.hidden_indices.field_sizes +
                                         self.observed_indices.field_sizes)
 
