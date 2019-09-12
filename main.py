@@ -1,6 +1,7 @@
 from factorial_hmm import FullDiscreteFactorialHMM
 import numpy as np
 import itertools
+import src.parser
 
 # TODO: info from the paper
 '''
@@ -41,6 +42,7 @@ for st in itertools.product(*[range(K)] * M):
 hmm = FullDiscreteFactorialHMM(params=params, n_steps=n_steps,
                                calculate_on_init=True)
 
-training_set = np.array([1, 0, 1]) # parsed training set state
+parsed_dataset = src.parser.load_pickle('./dataset/parsed_dataset.pkl')
+training_set = np.array(list(itertools.chain(*parsed_dataset[:50]))) # parsed training set state
 
 hmm.EM(training_set,n_iterations=30)
