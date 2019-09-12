@@ -3,9 +3,6 @@ import pickle
 import numpy
 import itertools
 from . import BASE_DIR, DATA_DIR
-from hmmlearn import hmm
-from functools import reduce
-
 
 def tokenize(chars):
     if type(chars) == bytes:
