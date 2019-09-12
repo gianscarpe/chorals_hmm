@@ -59,39 +59,8 @@ def dataset2states(dataset_name, vocab_name):
         parsed_dataset.append([vocab.index(note) for note in chorale])
     return parsed_dataset
 
-def load_pickle(path):
-    with open(path, 'rb') as f:
-        return pickle.load(f)
-
-def save_pickle(obj, path):
-    with open(path, 'wb') as f:
-        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
-
 # unique_notes = notes2unique('../dataset/dataset.dt')
 # save_pickle(unique_notes, '../dataset/vocab.pkl')
 # vocab = load_pickle('../dataset/vocab.pkl')
 # parsed_dataset = dataset2states('../dataset/dataset.dt', '../dataset/vocab.pkl')
 # save_pickle(parsed_dataset, '../dataset/parsed_dataset.pkl')
-vocabs = load_pickle(os.path.join(DATA_DIR, 'vocab.pkl'))
-parsed_dataset = load_pickle(os.path.join(DATA_DIR, 'parsed_dataset.pkl'))
-
-training_set = parsed_dataset[:30]
-test_set = parsed_dataset[30:66]
-
-obs_train = [numpy.array([state for state in chorale]) for chorale in training_set]
-obs_train = [state.reshape(-1, 1) for state in obs_train]
-train_lengths = [len(seq) for seq in obs_train]
-
-obs_test = [numpy.array([state for state in chorale]) for chorale in test_set]
-obs_test = [state.reshape(-1, 1) for state in obs_test]
-test_lengths = [len(seq) for seq in obs_test]
-
-# Train the model.
-hmm.MultinomialHMM._check_input_symbols = lambda *_: True
-model = hmm.MultinomialHMM(n_components=25, n_iter=100)
-model.monitor_.verbose = True
-model.n_features = len(vocabs)
-model.fit(numpy.concatenate(obs_train), train_lengths)
-print(model.score(numpy.concatenate(obs_test), test_lengths))
-# Z2 = model.predict(obs_states)
-# print(Z2)
