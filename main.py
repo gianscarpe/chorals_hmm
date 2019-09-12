@@ -2,6 +2,7 @@ from factorial_hmm import FullDiscreteFactorialHMM
 import numpy as np
 import itertools
 import src.parser
+from collections import Counter
 
 # TODO: info from the paper
 '''
@@ -13,7 +14,7 @@ M: from 2 to 9
 
 K = 2
 M = 2
-D = 3  # what is it? maybe number of different observation
+D = 3600  # what is it? maybe number of different observation
 n_steps = 30
 random_seed = 1
 
@@ -39,10 +40,12 @@ for st in itertools.product(*[range(K)] * M):
     R /= R.sum()
     params['obs_given_hidden'][list(st) + [Ellipsis]] = R
 
-hmm = FullDiscreteFactorialHMM(params=params, n_steps=n_steps,
-                               calculate_on_init=True)
+
 
 parsed_dataset = src.parser.load_pickle('./dataset/parsed_dataset.pkl')
 training_set = np.array(list(itertools.chain(*parsed_dataset[:50]))) # parsed training set state
 
-hmm.EM(training_set,n_iterations=30)
+hmm = FullDiscreteFactorialHMM(params=params, n_steps=3600,
+                               calculate_on_init=True)
+
+hmm.EM(training_set, n_iterations=1)
