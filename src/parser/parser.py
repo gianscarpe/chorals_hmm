@@ -2,8 +2,8 @@ import os
 import pickle
 import numpy
 import itertools
-from . import BASE_DIR, DATA_DIR
-from .helpers import save_pickle, load_pickle
+from src import BASE_DIR, DATA_DIR
+from src.helpers import save_pickle, load_pickle
 
 def tokenize(chars):
     if type(chars) == bytes:
@@ -57,9 +57,9 @@ def dataset2states(dataset_name, vocab_name):
         parsed_dataset.append([vocab.index(note) for note in chorale])
     return parsed_dataset
 
-vocab_path = os.path.join(DATA_DIR, 'vocab.pkl')
-data_path = os.path.join(DATA_DIR, 'dataset.dt')
-parsed_data_path = os.path.join(DATA_DIR, 'parsed_dataset.pkl')
+vocab_path = os.path.join(DATA_DIR, 'bach_chorales', 'vocab.pkl')
+data_path = os.path.join(DATA_DIR, 'bach_chorales', 'dataset.dt')
+parsed_data_path = os.path.join(DATA_DIR, 'bach_chorales', 'parsed_dataset.pkl')
 
 unique_notes = notes2unique(data_path)
 save_pickle(unique_notes, vocab_path)
