@@ -3,6 +3,7 @@ import pickle
 import numpy
 import itertools
 from . import BASE_DIR, DATA_DIR
+from .helpers import save_pickle, load_pickle
 
 def tokenize(chars):
     if type(chars) == bytes:
@@ -14,7 +15,7 @@ def tokens2notes(tokens):
     note = []
     notes = []
     while i < len(tokens) - 1:
-        if tokens[i] != '(' and tokens[i] != ')':
+        if tokens[i] != '(' and tokens[i] != ')' and (tokens[i] == 'pitch' or tokens[i] == 'dur'):
             note.extend([tokens[i], int(tokens[i+1])])
             i += 2
         elif tokens[i] == tokens[i+1] == ')':
@@ -56,8 +57,12 @@ def dataset2states(dataset_name, vocab_name):
         parsed_dataset.append([vocab.index(note) for note in chorale])
     return parsed_dataset
 
-# unique_notes = notes2unique('../dataset/dataset.dt')
-# save_pickle(unique_notes, '../dataset/vocab.pkl')
-# vocab = load_pickle('../dataset/vocab.pkl')
-# parsed_dataset = dataset2states('../dataset/dataset.dt', '../dataset/vocab.pkl')
-# save_pickle(parsed_dataset, '../dataset/parsed_dataset.pkl')
+vocab_path = os.path.join(DATA_DIR, 'vocab.pkl')
+data_path = os.path.join(DATA_DIR, 'dataset.dt')
+parsed_data_path = os.path.join(DATA_DIR, 'parsed_dataset.pkl')
+
+unique_notes = notes2unique(data_path)
+save_pickle(unique_notes, vocab_path)
+vocab = load_pickle(vocab_path)
+parsed_dataset = dataset2states(data_path, vocab_path)
+save_pickle(parsed_dataset, parsed_data_path)
