@@ -8,8 +8,8 @@ from src.helpers import *
 from hmmlearn import hmm
 from functools import reduce
 
-vocabs = load_pickle(os.path.join(DATA_DIR, 'vocab.pkl'))
-parsed_dataset = load_pickle(os.path.join(DATA_DIR, 'parsed_dataset.pkl'))
+vocabs = load_pickle(os.path.join(DATA_DIR, 'bach_chorales', 'vocab.pkl'))
+parsed_dataset = load_pickle(os.path.join(DATA_DIR, 'bach_chorales', 'parsed_dataset.pkl'))
 
 training_set = parsed_dataset[:60]
 test_set = parsed_dataset[60:]
