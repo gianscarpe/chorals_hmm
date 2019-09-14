@@ -3,6 +3,7 @@ import itertools
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, '..', 'dataset'))
+MODELS_DIR = os.path.abspath(os.path.join(BASE_DIR, '..', 'models'))
 
 # Bach chorales state space: pitch x duration
 MIN_PITCH = 60
