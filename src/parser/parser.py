@@ -39,6 +39,9 @@ def parse_dataset(dataset_name):
                 chorales.append(chorale_notes)
         return chorales
 
+def states2notes(states, vocab):
+    return [vocab[state] for state in states]
+
 def dataset2states(dataset_name, vocab):
     dataset = parse_dataset(dataset_name)
     parsed_dataset = []
