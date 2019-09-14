@@ -3,7 +3,7 @@ import math
 import pickle
 import numpy
 import itertools
-from src import BASE_DIR, DATA_DIR, MODELS_DIR
+from src import BASE_DIR, DATA_DIR, MODELS_DIR, MIDI_DIR
 from src.parser.parser import states2notes
 from src.helpers import load_pickle, save_pickle, notes2midi
 from hmmlearn import hmm
@@ -25,7 +25,7 @@ test_lengths = [len(seq) for seq in obs_test]
 
 # Train the model.
 hmm.MultinomialHMM._check_input_symbols = lambda *_: True
-n_components = 20
+n_components = 30
 n_iter = 100
 train = True
 model_name = 'hmm_' + str(n_components) + '_' + str(n_iter) + '.pkl'
@@ -47,4 +47,4 @@ print(likelihoods)
 sample, _ = model.sample(50, 42)
 sample = list(itertools.chain(*sample))
 notes = states2notes(sample, vocabs)
-notes2midi(notes, 'generated.mid')
+notes2midi(notes, os.path.join(MIDI_DIR, 'generated.mid'))
