@@ -10,6 +10,6 @@ scores = music21.corpus.search('mozart', 'composer')
 print(scores)
 for score in scores:
     song = score.parse()
-    print(song.parts[0].flat.elements)
+    print(song.parts[1])
     
 
