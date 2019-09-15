@@ -23,7 +23,7 @@ mf.write()
 mf.close()
 
 # scores = music21.corpus.search('bach', 'composer')
-# music21_bach = scores[5].parse().parts['Soprano']
+# music21_bach = scores[10].parse().parts['Soprano']
 # music21_bach.show()
 # mf = music21.midi.translate.streamToMidiFile(music21_bach)
 # mf.open('music21_bach.mid', 'wb')
