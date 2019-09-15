@@ -701,11 +701,18 @@ class FullDiscreteFactorialHMM(FactorialHMMDiscreteObserved):
 
         H = FullDiscreteFactorialHMM(params, self.n_steps, True)
 
+        log_likelihood_list = []
         while True:
-            alphas, betas, gammas, scaling_constants, log_likelihood = H.EStep(
-                observed_states)
-            new_params = H.MStep(observed_states, alphas, betas, gammas,
-                                 scaling_constants)
+            for observation in observed_states:
+                alphas, betas, gammas, scaling_constants, log_likelihood = H.EStep(
+                    observation)
+                params = self.update_params(observation, alphas, betas,
+                                            gammas, scaling_constants,
+                                            params)
+
+                log_likelihood_list.append(log_likelihood)
+            new_params = H.MStep_factorial(params)
+
             H = FullDiscreteFactorialHMM(new_params, self.n_steps, True)
 
             if verbose and (
@@ -713,6 +720,7 @@ class FullDiscreteFactorialHMM(FactorialHMMDiscreteObserved):
                 print("Iter: {}\t LL: {}".format(n_iter, log_likelihood))
 
             n_iter += 1
+
             if n_iter == n_iterations:
                 break
 
@@ -720,6 +728,74 @@ class FullDiscreteFactorialHMM(FactorialHMMDiscreteObserved):
                     log_likelihood - old_log_likelihood) < likelihood_precision:
                 break
 
-            old_log_likelihood = log_likelihood
+            old_log_likelihood = np.mean(np.sum(np.array(log_likelihood_list)))
 
         return H
+
+    def update_params(self, observed_states, alphas, betas, gammas,
+                      scaling_constants, params):
+        # Shortcuts
+        I = self.hidden_indices
+        J = self.observed_indices
+        P = self.params
+
+        K = P['hidden_alphabet_size']
+
+        initial_hidden_state_estimate = np.zeros((self.n_hidden_states, K))
+        transition_matrices_estimates = np.zeros((self.n_hidden_states, K, K))
+        for field in range(self.n_hidden_states):
+            collapsed_xis = self.CalculateAndCollapseXis(field, observed_states,
+                                                         alphas, betas,
+                                                         scaling_constants)
+            collapsed_gammas = self.CollapseGammas(gammas, field)
+
+            initial_hidden_state_estimate[field, :] = collapsed_gammas[:,
+                                                      0] / collapsed_gammas[:,
+                                                           0].sum()
+            transition_matrices_estimates[field, :, :] = (
+                    collapsed_xis.sum(axis=2) / collapsed_gammas[:,
+                                                :-1].sum(axis=1)[:,
+                                                np.newaxis]).T
+
+        emission_probability_estimate = np.zeros(
+            self.hidden_indices.field_sizes + self.observed_indices.field_sizes)
+        for hid_state in self.all_hidden_states:
+            gammas_at_hid = gammas[tuple(hid_state) + (Ellipsis,)]
+
+            for obs_state in self.all_observed_states:
+                indices = np.where(
+                    np.all(observed_states == obs_state[:, np.newaxis],
+                           axis=0))[0]
+                emission_probability_estimate[
+                    tuple(hid_state) + tuple(obs_state)] \
+                    = gammas_at_hid[
+                          indices].sum() / gammas_at_hid.sum()
+
+        new_params = copy.deepcopy(params)
+        new_params['initial_hidden_state'] += initial_hidden_state_estimate
+        new_params['transition_matrices'] += transition_matrices_estimates
+        new_params['obs_given_hidden'] += emission_probability_estimate
+
+        return new_params
+
+    def MStep_factorial(self, params):
+        for chain in range(len(params['initial_hidden_state'])):
+            normalize(params['initial_hidden_state'][chain])
+            normalize(params['transition_matrices'][chain], axis=0)
+
+        for i in np.ndindex(params["obs_given_hidden"].shape[:-1]):
+            normalize(params["obs_given_hidden"][i])
+
+        return params
+
+
+def normalize(a, axis=None):
+    a_sum = a.sum(axis)
+    if axis and a.ndim > 1:
+        # Make sure we don't divide by zero.
+        a_sum[a_sum == 0] = 1
+        shape = list(a.shape)
+        shape[axis] = 1
+        a_sum.shape = shape
+
+    a /= a_sum

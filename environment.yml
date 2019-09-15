@@ -5,3 +5,5 @@ dependencies:
   - numpy=*
   - scipy=*
   - hmmlearn=*
+  - MIDIUtil=*
+  - music21=*
