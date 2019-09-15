@@ -16,7 +16,7 @@ n_components = 20
 n_iter = 200
 train = False
 hmm_generate = True
-generate_original = True
+generate_original = False
 
 vocabs = load_pickle(os.path.join(DATA_DIR, 'bach_chorales', 'vocab.pkl'))
 parsed_dataset = load_pickle(os.path.join(DATA_DIR, 'bach_chorales', 'parsed_dataset.pkl'))
@@ -55,6 +55,8 @@ if hmm_generate:
     # notes = states2notes(sample, vocabs)
     # notes2midi(notes, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + model_name + '.mid'))
     stream = states2stream(sample, vocabs)
+    for elem in stream.flat.elements:
+        print(elem)
     stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + model_name + '.mid'))
 
 if generate_original:
