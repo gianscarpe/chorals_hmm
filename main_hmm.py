@@ -5,8 +5,8 @@ import numpy
 import random
 import itertools
 from src import BASE_DIR, DATA_DIR, MODELS_DIR, MIDI_DIR
-from src.parser.parser import states2notes, states2stream
-from src.helpers import load_pickle, save_pickle, notes2midi, stream2midi
+from src.parser.parser import states2notes, states2music21_stream
+from src.helpers import load_pickle, save_pickle, stream2midi
 from hmmlearn import hmm
 from functools import reduce
 
@@ -54,15 +54,16 @@ if hmm_generate:
     sample = list(itertools.chain(*sample))
     # notes = states2notes(sample, vocabs)
     # notes2midi(notes, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + model_name + '.mid'))
-    stream = states2stream(sample, vocabs)
+    stream = states2music21_stream(sample, vocabs)
     for elem in stream.flat.elements:
         print(elem)
     stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + model_name + '.mid'))
+    stream.show()
 
 if generate_original:
     chorale_num = random.randint(0, training_size - 1)
     sample = training_set[chorale_num]
     # notes = states2notes(sample, vocabs)
     # notes2midi(notes, os.path.join(MIDI_DIR, 'original', 'original' + '_' + str(chorale_num) + '.mid'))
-    stream = states2stream(sample, vocabs)
+    stream = states2music21_stream(sample, vocabs)
     stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + str(chorale_num) + '.mid'))
