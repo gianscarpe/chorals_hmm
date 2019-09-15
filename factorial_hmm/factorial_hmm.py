@@ -702,22 +702,24 @@ class FullDiscreteFactorialHMM(FactorialHMMDiscreteObserved):
         H = FullDiscreteFactorialHMM(params, self.n_steps, True)
 
         log_likelihood_list = []
+        params_list = []
         while True:
             for observation in observed_states:
                 alphas, betas, gammas, scaling_constants, log_likelihood = H.EStep(
                     observation)
                 params = self.update_params(observation, alphas, betas,
-                                            gammas, scaling_constants,
-                                            params)
+                                            gammas, scaling_constants, params)
 
+                params_list.append(params)
                 log_likelihood_list.append(log_likelihood)
-            new_params = H.MStep_factorial(params)
 
+            new_params = H.normalize_params(params)
+            new_log_likelihood = np.mean(np.array(log_likelihood_list))
             H = FullDiscreteFactorialHMM(new_params, self.n_steps, True)
 
             if verbose and (
                     n_iter % print_every == 0 or n_iter == n_iterations - 1):
-                print("Iter: {}\t LL: {}".format(n_iter, log_likelihood))
+                print("Iter: {}\t LL: {}".format(n_iter, new_log_likelihood))
 
             n_iter += 1
 
@@ -725,10 +727,10 @@ class FullDiscreteFactorialHMM(FactorialHMMDiscreteObserved):
                 break
 
             if np.abs(
-                    log_likelihood - old_log_likelihood) < likelihood_precision:
+                    new_log_likelihood - old_log_likelihood) < likelihood_precision:
                 break
 
-            old_log_likelihood = np.mean(np.sum(np.array(log_likelihood_list)))
+            old_log_likelihood = new_log_likelihood
 
         return H
 
@@ -778,7 +780,7 @@ class FullDiscreteFactorialHMM(FactorialHMMDiscreteObserved):
 
         return new_params
 
-    def MStep_factorial(self, params):
+    def normalize_params(self, params):
         for chain in range(len(params['initial_hidden_state'])):
             normalize(params['initial_hidden_state'][chain])
             normalize(params['transition_matrices'][chain], axis=0)

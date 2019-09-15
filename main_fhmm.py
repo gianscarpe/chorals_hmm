@@ -24,8 +24,8 @@ test_set = dataset[60:]
 n_steps = len(training_set)
 
 save = True
-K = 3
-M = 4
+K = 2
+M = 2
 D = len(vocabs)  # what is it? maybe number of different observation
 random_seed = 1
 n_iterations = 15
