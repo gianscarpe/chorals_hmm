@@ -1,7 +1,6 @@
 import pickle
 import music21
 import itertools
-from midiutil import MIDIFile
 from src import MIN_DUR, MAX_DUR, MIN_PITCH, MAX_PITCH
 
 def load_pickle(path):
@@ -30,21 +29,23 @@ def stream2midi(stream, midi_path):
     mf.write()
     mf.close()
 
-def notes2midi(notes, midi_path, track=0, channel=0, time=0, tempo=120, volume=100):
-    """ 
-    track    = 0
-    channel  = 0
-    time     = 0    # In beats
-    tempo    = 180   # In BPM
-    volume   = 127  # 0-127, as per the MIDI standard 
-    """
+# To use this method install first MIDIUtil: pip install MIDIUtil
 
-    MyMIDI = MIDIFile(1)  # One track, defaults to format 1 (tempo track is created
-                        # automatically)
-    MyMIDI.addTempo(track, time, tempo)
+# def notes2midi(notes, midi_path, track=0, channel=0, time=0, tempo=120, volume=100):
+#     """ 
+#     track    = 0
+#     channel  = 0
+#     time     = 0    # In beats
+#     tempo    = 180   # In BPM
+#     volume   = 127  # 0-127, as per the MIDI standard 
+#     """
 
-    for i, (pitch, duration) in enumerate(notes):
-        MyMIDI.addNote(track, channel, pitch, time + i, duration / 16, volume)
+#     MyMIDI = MIDIFile(1)  # One track, defaults to format 1 (tempo track is created
+#                         # automatically)
+#     MyMIDI.addTempo(track, time, tempo)
 
-    with open(midi_path, "wb") as output_file:
-        MyMIDI.writeFile(output_file)
+#     for i, (pitch, duration) in enumerate(notes):
+#         MyMIDI.addNote(track, channel, pitch, time + i, duration / 16, volume)
+
+#     with open(midi_path, "wb") as output_file:
+#         MyMIDI.writeFile(output_file)
