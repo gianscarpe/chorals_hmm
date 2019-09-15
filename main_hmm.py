@@ -57,6 +57,7 @@ if hmm_generate:
     stream = states2music21_stream(sample, vocabs)
     stream.show()
     stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + model_name + '.mid'))
+    stream.show()
 
 if generate_original:
     chorale_num = random.randint(0, training_size - 1)
