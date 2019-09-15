@@ -1,4 +1,5 @@
 import pickle
+import music21
 import itertools
 from midiutil import MIDIFile
 from src import MIN_DUR, MAX_DUR, MIN_PITCH, MAX_PITCH
@@ -23,6 +24,12 @@ def get_pitch_space():
     pitch_space = list(itertools.product(pitches, durations))
     return pitch_space
 
+def stream2midi(stream, midi_path):
+    mf = music21.midi.translate.streamToMidiFile(stream)
+    mf.open(midi_path, 'wb')
+    mf.write()
+    mf.close()
+
 def notes2midi(notes, midi_path, track=0, channel=0, time=0, tempo=120, volume=100):
     """ 
     track    = 0
@@ -37,7 +44,7 @@ def notes2midi(notes, midi_path, track=0, channel=0, time=0, tempo=120, volume=1
     MyMIDI.addTempo(track, time, tempo)
 
     for i, (pitch, duration) in enumerate(notes):
-        MyMIDI.addNote(track, channel, pitch, time + i, duration, volume)
+        MyMIDI.addNote(track, channel, pitch, time + i, duration / 16, volume)
 
     with open(midi_path, "wb") as output_file:
         MyMIDI.writeFile(output_file)

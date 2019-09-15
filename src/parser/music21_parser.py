@@ -6,10 +6,11 @@ import itertools
 from src import BASE_DIR, DATA_DIR
 from src.helpers import save_pickle, load_pickle
 
-scores = music21.corpus.search('mozart', 'composer')
+music21.environment.set('musicxmlPath', '/usr/bin/musescore')
+scores = music21.corpus.search('bach', 'composer')
 print(scores)
 for score in scores:
     song = score.parse()
-    print(music21.instrument.partitionByInstrument(song))
+    song.show()
     
 

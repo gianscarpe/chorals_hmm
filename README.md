@@ -20,3 +20,7 @@ Packages needed to play MIDI song:
 
 To play a song run `timidity -Os filename.mid`
 
+Packages needed to show scores:
+
+* musescore: `sudo apt install musescore`
+
