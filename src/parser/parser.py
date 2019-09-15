@@ -48,9 +48,9 @@ def tokens2music21_notes(tokens):
     notes = []
     while i < len(tokens) - 1:
         if tokens[i] != '(' and tokens[i] != ')':
-            if tokens[i] == 'st':
-                offset += int(tokens[i+1]) / 4
-            elif tokens[i] == 'pitch':
+            # if tokens[i] == 'st':
+            #     offset += int(tokens[i+1]) / 4
+            if tokens[i] == 'pitch':
                 pitch = music21.pitch.Pitch()
                 pitch.midi = int(tokens[i+1])
             elif tokens[i] == 'dur':
