@@ -15,17 +15,17 @@ def get_pitches(dataset='chorales'):
     if dataset == 'chorales':
         return [i for i in range(MIN_PITCH_CHORALES, MAX_PITCH_CHORALES + 1)]
     elif dataset == 'chorales_m21':
-        return [i for i in range(MIN_PITCH_CHORALES_M21_PARSED, MAX_PITCH_CHORALES_M21_PARSED + 1)]
-    elif dataset == 'music21':
+        return [i for i in range(MIN_PITCH_CHORALES_M21, MAX_PITCH_CHORALES_M21 + 1)]
+    elif dataset == 'm21':
         return [i for i in range(MIN_PITCH_M21, MAX_PITCH_M21 + 1)]
-    elif dataset == 'both':
-        return [i for i in range(MIN_PITCH_BOTH, MAX_PITCH_BOTH + 1)]
+    elif dataset == 'combined':
+        return [i for i in range(MIN_PITCH_COMBINED, MAX_PITCH_COMBINED + 1)]
 
 def get_durations(dataset='chorales'):
     if dataset == 'chorales':
         return [i for i in range(MIN_DUR_CHORALES, MAX_DUR_CHORALES + 1)]
     elif dataset == 'chorales_m21':
-        return DURATIONS_CHORALES_M21_PARSED
+        return DURATIONS_CHORALES_M21
     else:
         return DURATIONS_M21
 
@@ -41,8 +41,35 @@ def stream2midi(stream, midi_path):
     mf.write()
     mf.close()
 
-# To use this method install first MIDIUtil: pip install MIDIUtil
+def get_datasets_equality_ratio(
+    our_bach_music21_datasets: list, 
+    bach_music21_datasets: list,
+    thr=.9):
 
+    equals_datasets = []
+    for i_our, our_dataset in enumerate(our_bach_music21_datasets):
+        for i_m21, m21_dataset in enumerate(bach_music21_datasets):
+            equals = 0
+            k = 0
+            if len(our_dataset) <= len(m21_dataset):
+                for our_elem in our_dataset:
+                    while k < len(m21_dataset) and m21_dataset[k] != our_elem:
+                        k += 1
+                    if k < len(m21_dataset):
+                        equals += 1
+                        k += 1
+            else:
+                for m21_elem in m21_dataset:
+                    while k < len(our_dataset) and m21_elem != our_dataset[k]:
+                        k += 1
+                    if k < len(our_dataset):
+                        equals += 1  
+                        k += 1 
+            if equals / min(len(m21_dataset), len(our_dataset)) > thr:
+                equals_datasets.append((i_our, i_m21, equals, min(len(m21_dataset), len(our_dataset))))
+    return equals_datasets
+
+# To use this method install first MIDIUtil: pip install MIDIUtil
 # def notes2midi(notes, midi_path, track=0, channel=0, time=0, tempo=120, volume=100):
 #     """ 
 #     track    = 0

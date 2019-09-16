@@ -1,5 +1,6 @@
 import os
 import math
+import music21
 import pickle
 import numpy
 import random
@@ -10,16 +11,21 @@ from src.helpers import load_pickle, save_pickle, stream2midi
 from hmmlearn import hmm
 from functools import reduce
 
+music21.environment.set('musicxmlPath', '/usr/bin/musescore')
+music21.environment.set('graphicsPath', '/usr/bin/musescore')
+music21.environment.set('musescoreDirectPNGPath', '/usr/bin/musescore')
+
+vocabs = load_pickle(os.path.join(DATA_DIR, 'music21', 'bach_vocab.pkl'))
+parsed_dataset = load_pickle(os.path.join(DATA_DIR, 'music21', 'bach_states_dataset.pkl'))
+
 # Parameters
-training_size = 60
+train_ratio = .6
+training_size = round(len(parsed_dataset) * train_ratio)
 n_components = 10
 n_iter = 200
 train = True
 hmm_generate = True
 generate_original = False
-
-vocabs = load_pickle(os.path.join(DATA_DIR, 'bach_chorales', 'music21', 'm21_vocab.pkl'))
-parsed_dataset = load_pickle(os.path.join(DATA_DIR, 'bach_chorales', 'music21', 'm21_states_dataset.pkl'))
 
 training_set = parsed_dataset[:training_size]
 test_set = parsed_dataset[training_size:]
@@ -34,7 +40,7 @@ test_lengths = [len(seq) for seq in obs_test]
 
 # Train the model.
 hmm.MultinomialHMM._check_input_symbols = lambda *_: True
-model_name = 'hmm_m21' + '_' + str(training_size) + '_' + str(n_components) + '_' + str(n_iter)
+model_name = 'hmm_bach_m21' + '_' + str(int(train_ratio * 10)) + '_' + str(n_components) + '_' + str(n_iter)
 
 if train:
     model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter)
@@ -44,9 +50,11 @@ if train:
     # Print likelihoods
     likelihoods = [model.score(sequence) for i, sequence in enumerate(obs_test)]
     print(likelihoods)
-    # save_pickle(model, os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
+    save_pickle(model, os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
 else:
     model = load_pickle(os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
+    likelihoods = [model.score(sequence) for i, sequence in enumerate(obs_test)]
+    print(likelihoods)
 
 # Generate song
 if hmm_generate:
@@ -55,9 +63,9 @@ if hmm_generate:
     # notes = states2notes(sample, vocabs)
     # notes2midi(notes, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + model_name + '.mid'))
     stream = states2music21_stream(sample, vocabs, our=False)
-    stream.show()
-    stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + model_name + '.mid'))
-    stream.show()
+    #stream.show('lily')
+    stream.write('musicxml.pdf', os.path.join(BASE_DIR, 'music_sheet', model_name + '.xml'))
+    stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', model_name + '.mid'))
 
 if generate_original:
     chorale_num = random.randint(0, training_size - 1)

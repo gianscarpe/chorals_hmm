@@ -136,12 +136,11 @@ def dataset2states(data_path, vocab, our=False):
             states_dataset.append([vocab.index((elem['pitch'], elem['duration'])) for elem in song])
     return states_dataset
 
-
 def parse_music21_obj(music21_obj):
     parsed_music21_obj = []
     keysig = music21_obj.flat.keySignature.sharps
     timesig = music21_obj.flat.timeSignature.ratioString
-    rest = 0
+    # rest = 0
     for elem in music21_obj.flat.elements:
         if isinstance(elem, music21.note.Note):
             note = dict()
@@ -161,7 +160,7 @@ def parse_music21_obj(music21_obj):
                         fermata = True
                     i += 1
             note["fermata"] = fermata
-            rest = 0
+            # rest = 0
             parsed_music21_obj.append(note)
         # elif isinstance(elem, music21.note.Rest):
         #     rest += elem.duration.quarterLength
