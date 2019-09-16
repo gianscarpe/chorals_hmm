@@ -1,7 +1,7 @@
 import pickle
 import music21
 import itertools
-from src import MIN_DUR, MAX_DUR, MIN_PITCH, MAX_PITCH
+from src import MIN_DUR_CHORALES, MAX_DUR_CHORALES, MIN_PITCH_CHORALES, MAX_PITCH_CHORALES
 
 def load_pickle(path):
     with open(path, 'rb') as f:
@@ -11,15 +11,17 @@ def save_pickle(obj, path):
     with open(path, 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
-def get_pitches():
-    return [i for i in range(MIN_PITCH, MAX_PITCH + 1)]
+def get_pitches(dataset='chorales'):
+    if dataset == 'chorales':
+        return [i for i in range(MIN_PITCH_CHORALES, MAX_PITCH_CHORALES + 1)]
 
-def get_durations():
-    return [i for i in range(MIN_DUR, MAX_DUR + 1)]
+def get_durations(dataset='chorales'):
+    if dataset == 'chorales':
+        return [i for i in range(MIN_DUR_CHORALES, MAX_DUR_CHORALES + 1)]
 
-def get_pitch_space():
-    pitches = get_pitches()
-    durations = get_durations()
+def get_pitch_space(dataset='chorales'):
+    pitches = get_pitches(dataset=dataset)
+    durations = get_durations(dataset=dataset)
     pitch_space = list(itertools.product(pitches, durations))
     return pitch_space
 

@@ -43,6 +43,7 @@ def parse_dataset(data_path):
 def tokens2music21_notes(tokens):
     i = 0
     offset = 0
+    fermata = False
     keysig = None
     timesig = None
     notes = []
@@ -65,12 +66,17 @@ def tokens2music21_notes(tokens):
                     timesig = music21.meter.TimeSignature()
                     timesig.numerator = int(int(tokens[i+1]) / 4)
                     timesig.denominator = 4
+            elif tokens[i] == 'fermata' and tokens[i+1] == 1:
+                fermata = True
             i += 2
         elif tokens[i] == tokens[i+1] == ')':
             note = music21.note.Note()
             note.pitch = pitch
             note.duration = duration
             note.offset = offset
+            if fermata:
+                fermata = False
+                note.expressions.append(music21.expressions.Fermata())
             notes.append(note)
             i += 1
         else:
@@ -122,3 +128,59 @@ def dataset2states(data_path, vocab):
     for chorale in dataset:
         parsed_dataset.append([vocab.index(note) for note in chorale])
     return parsed_dataset
+
+def parse_music21_obj(music21_obj):
+    parsed_music21_obj = []
+    keysig = music21_obj.flat.keySignature.sharps
+    timesig = music21_obj.flat.timeSignature.ratioString
+    rest = 0
+    for elem in music21_obj.flat.elements:
+        if isinstance(elem, music21.note.Note):
+            note = dict()
+            # note["name"] = elem.pitch.name
+            # note["nameWithOctave"] = elem.nameWithOctave
+            # note["octave"] = elem.pitch.octave
+            note["pitch"] = elem.pitch.ps
+            note["duration"] = elem.duration.quarterLength
+            note["keySignature"] = keysig
+            note["timeSignature"] = timesig
+            note["restBefore"] = rest
+            fermata = False
+            if len(elem.expressions) > 0:
+                i = 0
+                while i < len(elem.expressions) and not fermata:
+                    if isinstance(elem.expressions[i], music21.expressions.Fermata):
+                        fermata = True
+                    i += 1
+            note["fermata"] = fermata
+            rest = 0
+            parsed_music21_obj.append(note)
+        elif isinstance(elem, music21.note.Rest):
+            rest += elem.duration.quarterLength
+        elif isinstance(elem, music21.key.KeySignature):
+            keysig = elem.sharps
+        elif isinstance(elem, music21.meter.TimeSignature):
+            timesig = elem.ratioString
+    return parsed_music21_obj
+
+def create_music21_dataset(author='bach', part='soprano'):
+    dataset = []
+    scores = music21.corpus.search(author, 'composer')
+    if scores != []:
+        for score in scores:
+            song = score.parse()
+            try:
+                chosen_part = song.parts[part]
+            except:
+                print('Something wrong')
+                continue
+            if chosen_part is not None:
+                parsed_part = parse_music21_obj(chosen_part)
+                if parsed_part != []:
+                    dataset.append(parsed_part)
+            else:
+                print('Part {} not found!'.format(part))
+    else:
+        print('Author {} not found!'.format(author))
+        return
+    return dataset
