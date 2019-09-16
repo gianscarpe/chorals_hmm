@@ -100,14 +100,16 @@ def dataset2music21_streams(data_path):
                 streams.append(stream.makeMeasures())
         return streams
 
-def states2music21_stream(states, vocab):
+def states2music21_stream(states, vocab, our=True):
     stream = music21.stream.Stream()
     notes = []
     for state in states:
         (ps, dur) = vocab[state]
         # Set duration
         duration = music21.duration.Duration(type='quarter')
-        duration.quarterLength = dur / 4
+        duration.quarterLength = dur
+        if our:
+            duration.quarterLength /= 4
         # Set pitch
         pitch = music21.pitch.Pitch()
         pitch.midi = ps
@@ -122,12 +124,18 @@ def states2music21_stream(states, vocab):
 def states2notes(states, vocab):
     return [vocab[state] for state in states]
 
-def dataset2states(data_path, vocab):
-    dataset = parse_dataset(data_path)
-    parsed_dataset = []
-    for chorale in dataset:
-        parsed_dataset.append([vocab.index(note) for note in chorale])
-    return parsed_dataset
+def dataset2states(data_path, vocab, our=False):
+    states_dataset = []
+    if our:
+        dataset = parse_dataset(data_path)
+        for chorale in dataset:
+            states_dataset.append([vocab.index(note) for note in chorale])
+    else:
+        m21_dataset = load_pickle(data_path)
+        for song in m21_dataset:
+            states_dataset.append([vocab.index((elem['pitch'], elem['duration'])) for elem in song])
+    return states_dataset
+
 
 def parse_music21_obj(music21_obj):
     parsed_music21_obj = []
@@ -144,7 +152,7 @@ def parse_music21_obj(music21_obj):
             note["duration"] = elem.duration.quarterLength
             note["keySignature"] = keysig
             note["timeSignature"] = timesig
-            note["restBefore"] = rest
+            # note["restBefore"] = rest
             fermata = False
             if len(elem.expressions) > 0:
                 i = 0
@@ -155,32 +163,56 @@ def parse_music21_obj(music21_obj):
             note["fermata"] = fermata
             rest = 0
             parsed_music21_obj.append(note)
-        elif isinstance(elem, music21.note.Rest):
-            rest += elem.duration.quarterLength
+        # elif isinstance(elem, music21.note.Rest):
+        #     rest += elem.duration.quarterLength
         elif isinstance(elem, music21.key.KeySignature):
             keysig = elem.sharps
         elif isinstance(elem, music21.meter.TimeSignature):
             timesig = elem.ratioString
     return parsed_music21_obj
 
-def create_music21_dataset(author='bach', part='soprano'):
+def parse_music21_dataset(
+    our=False, 
+    streams=None, 
+    author='bach', 
+    instrument='soprano', 
+    transposing_key='C'):
+
     dataset = []
-    scores = music21.corpus.search(author, 'composer')
-    if scores != []:
-        for score in scores:
-            song = score.parse()
-            try:
-                chosen_part = song.parts[part]
-            except:
-                print('Something wrong')
-                continue
-            if chosen_part is not None:
-                parsed_part = parse_music21_obj(chosen_part)
-                if parsed_part != []:
-                    dataset.append(parsed_part)
-            else:
-                print('Part {} not found!'.format(part))
+    if not our:
+        print('Parsing dataset from music21')
+        scores = music21.corpus.search(author, 'composer')
+        if scores != []:
+            for score in scores:
+                song = score.parse()
+                try:
+                    chosen_part = song.parts[instrument]
+                except:
+                    print('Something wrong accessing {} part'.format(instrument))
+                    continue
+                if chosen_part is not None:
+                    if transposing_key is not None:
+                        k = chosen_part.analyze('key')
+                        i = music21.interval.Interval(k.tonic, music21.pitch.Pitch(transposing_key))
+                        chosen_part = chosen_part.flat.transpose(i, inPlace=False)
+                        print('Trasposing from {} to {}'.format(k.tonic, transposing_key))
+                    parsed_part = parse_music21_obj(chosen_part)
+                    if parsed_part != []:
+                        dataset.append(parsed_part)
+                else:
+                    print('{} part not found!'.format(instrument))
+        else:
+            print('Author {} not found!'.format(author))
+            return
     else:
-        print('Author {} not found!'.format(author))
-        return
+        print('Parsing our dataset')
+        if streams is not None:
+            for song in streams:
+                if transposing_key is not None:
+                    k = song.analyze('key')
+                    i = music21.interval.Interval(k.tonic, music21.pitch.Pitch(transposing_key))
+                    song = song.flat.transpose(i, inPlace=False)
+                    print('Trasposing from {} to {}'.format(k.tonic, transposing_key))
+                parsed_song = parse_music21_obj(song)
+                dataset.append(parsed_song)
     return dataset

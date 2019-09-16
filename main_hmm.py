@@ -12,14 +12,14 @@ from functools import reduce
 
 # Parameters
 training_size = 60
-n_components = 40
+n_components = 10
 n_iter = 200
 train = True
 hmm_generate = True
 generate_original = False
 
-vocabs = load_pickle(os.path.join(DATA_DIR, 'bach_chorales', 'vocab.pkl'))
-parsed_dataset = load_pickle(os.path.join(DATA_DIR, 'bach_chorales', 'parsed_dataset.pkl'))
+vocabs = load_pickle(os.path.join(DATA_DIR, 'bach_chorales', 'music21', 'm21_vocab.pkl'))
+parsed_dataset = load_pickle(os.path.join(DATA_DIR, 'bach_chorales', 'music21', 'm21_states_dataset.pkl'))
 
 training_set = parsed_dataset[:training_size]
 test_set = parsed_dataset[training_size:]
@@ -34,7 +34,7 @@ test_lengths = [len(seq) for seq in obs_test]
 
 # Train the model.
 hmm.MultinomialHMM._check_input_symbols = lambda *_: True
-model_name = 'hmm' + '_' + str(training_size) + '_' + str(n_components) + '_' + str(n_iter)
+model_name = 'hmm_m21' + '_' + str(training_size) + '_' + str(n_components) + '_' + str(n_iter)
 
 if train:
     model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter)
@@ -44,7 +44,7 @@ if train:
     # Print likelihoods
     likelihoods = [model.score(sequence) for i, sequence in enumerate(obs_test)]
     print(likelihoods)
-    save_pickle(model, os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
+    # save_pickle(model, os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
 else:
     model = load_pickle(os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
 
@@ -54,7 +54,7 @@ if hmm_generate:
     sample = list(itertools.chain(*sample))
     # notes = states2notes(sample, vocabs)
     # notes2midi(notes, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + model_name + '.mid'))
-    stream = states2music21_stream(sample, vocabs)
+    stream = states2music21_stream(sample, vocabs, our=False)
     stream.show()
     stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + model_name + '.mid'))
     stream.show()
