@@ -1,0 +1,22 @@
+{% extends 'bootstrap/base.html' %}
+{% block content %}
+    <form action="sample">
+        <table style="width:25%">
+          <tr>
+             <th><h3>Generate music</h3></th>
+             <th><button type="submit" class = "btn btn-success">Generate</button></th>
+          </tr>
+        </table>
+    </form>
+
+    {% if image %}
+        <img src= {{image}} width="75%" height="75%">
+        </br></br>
+        <audio controls>
+            <source src = {{midi}}>
+        </audio>
+    {% endif %}
+    </br></br></br>
+    <a href={{link}} class="btn btn-primary" role="button">Home</a>
+
+{% endblock %}
