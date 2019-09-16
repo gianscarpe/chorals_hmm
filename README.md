@@ -24,4 +24,14 @@ Packages needed to show scores:
 
 * musescore: `sudo apt install musescore`
 
-Prov
+Primi results:  
+**HMM m21 40 stati : 200       -3032.9579          +0.1118**  
+#infs bach 137 on 335-length  
+AVG bach: -584.5778445063416  
+
+#infs beethoven 15 on 15-length  
+AVG beethoven: -inf  
+
+#infs mozart 15 on 15-length  
+AVG mozart: -inf  
+

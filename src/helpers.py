@@ -15,19 +15,21 @@ def get_pitches(dataset='chorales'):
     if dataset == 'chorales':
         return [i for i in range(MIN_PITCH_CHORALES, MAX_PITCH_CHORALES + 1)]
     elif dataset == 'chorales_m21':
-        return [i for i in range(MIN_PITCH_CHORALES_M21, MAX_PITCH_CHORALES_M21 + 1)]
+        return PITCHES_CHORALES_M21
     elif dataset == 'm21':
-        return [i for i in range(MIN_PITCH_M21, MAX_PITCH_M21 + 1)]
-    elif dataset == 'combined':
-        return [i for i in range(MIN_PITCH_COMBINED, MAX_PITCH_COMBINED + 1)]
+        return PITCHES_COMBINED_M21
+    elif dataset == 'all':
+        return PITCHES_ALL_M21
 
 def get_durations(dataset='chorales'):
     if dataset == 'chorales':
         return [i for i in range(MIN_DUR_CHORALES, MAX_DUR_CHORALES + 1)]
     elif dataset == 'chorales_m21':
         return DURATIONS_CHORALES_M21
-    else:
-        return DURATIONS_M21
+    elif dataset == 'm21':
+        return DURATIONS_COMBINED_M21
+    elif dataset == 'all':
+        return DURATIONS_ALL_M21
 
 def get_pitch_space(dataset='chorales'):
     pitches = get_pitches(dataset=dataset)
