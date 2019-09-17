@@ -1,7 +1,11 @@
 import pickle
 import music21
 import itertools
-from src import *
+from src import MIN_PITCH_CHORALES, MAX_PITCH_CHORALES,\
+                MIN_DUR_CHORALES, MAX_DUR_CHORALES,\
+                PITCHES_CHORALES_M21, PITCHES_COMBINED_M21,\
+                PITCHES_ALL_M21, DURATIONS_CHORALES_M21,\
+                DURATIONS_COMBINED_M21, DURATIONS_ALL_M21
 
 def load_pickle(path):
     with open(path, 'rb') as f:

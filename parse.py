@@ -6,7 +6,7 @@ import argparse
 import itertools
 from os import path
 from fractions import Fraction
-from src import *
+from src import DATA_DIR
 from src.parser.parser import dataset2states, chorales2music21_streams, parse_music21_dataset
 from src.helpers import save_pickle, load_pickle, get_pitch_space, get_datasets_equality_ratio
 
@@ -141,19 +141,23 @@ class CommandParser(object):
             print('Specify a folder in which there\'s at least one dataset')
             exit(1)
         if args.to_states:
-            if 'chorales' in args.path:
-                states_dataset = dataset2states(loaded_datasets[0], vocab, our=False)
-                name = 'chorales_states_dataset.pkl'
-                filename = path.join(args.path, name)
-                print('Saving states dataset to {}'.format(filename))
-                save_pickle(states_dataset, filename)
-            else:
-                for i, dataset in enumerate(loaded_datasets):
-                    states_dataset = dataset2states(dataset, vocab, our=False)
-                    name = datasets_in_dir[i].split('_')[0] + '_states_dataset.pkl'
+            if loaded_datasets != []:
+                if 'chorales' in args.path:
+                    states_dataset = dataset2states(loaded_datasets[0], vocab, our=False)
+                    name = 'chorales_states_dataset.pkl'
                     filename = path.join(args.path, name)
                     print('Saving states dataset to {}'.format(filename))
                     save_pickle(states_dataset, filename)
+                else:
+                    for i, dataset in enumerate(loaded_datasets):
+                        states_dataset = dataset2states(dataset, vocab, our=False)
+                        name = datasets_in_dir[i].split('_')[0] + '_states_dataset.pkl'
+                        filename = path.join(args.path, name)
+                        print('Saving states dataset to {}'.format(filename))
+                        save_pickle(states_dataset, filename)
+            else:
+                print('Get some dataset before! Run parse.py music21 -h to get info')
+                exit(1)
 
 if __name__ == '__main__':
     CommandParser()

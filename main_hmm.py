@@ -10,7 +10,6 @@ from src import BASE_DIR, DATA_DIR, MODELS_DIR, MIDI_DIR
 from src.parser.parser import states2notes, states2music21_stream
 from src.helpers import load_pickle, save_pickle, stream2midi
 from hmmlearn import hmm
-from functools import reduce
 
 music21.environment.set('musicxmlPath', '/usr/bin/musescore')
 music21.environment.set('graphicsPath', '/usr/bin/musescore')
@@ -23,14 +22,14 @@ test_dataset = load_pickle(os.path.join(DATA_DIR, 'music21', 'mozart_states_data
 # Parameters
 train_ratio = .6
 training_size = 30
-n_components = 40
+n_components = 60
 n_iter = 200
-train = False
-hmm_generate = False
+train = True
+hmm_generate = True
 generate_original = False
 
 training_set = parsed_dataset[:training_size]
-test_set = test_dataset
+test_set = parsed_dataset[training_size:]
 
 obs_train = [numpy.array([state for state in chorale]) for chorale in training_set]
 obs_train = [state.reshape(-1, 1) for state in obs_train]
