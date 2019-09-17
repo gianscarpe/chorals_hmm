@@ -57,7 +57,7 @@ class CommandParser(object):
         )
         parser.add_argument(
             '--transposing-key', 
-            default='C',
+            default=None,
             action='store'
         )
         parser.add_argument(
@@ -114,6 +114,8 @@ class CommandParser(object):
         # TWO argvs, ie the command (git) and the subcommand (commit)
         args = parser.parse_args(sys.argv[2:])
         args.path = path.abspath(args.path)
+        if not path.exists(args.path):
+            os.makedirs(args.path)
         datasets_in_dir = [
             filename for filename in os.listdir(args.path) 
             if filename.endswith('dataset.pkl') and not 'states' in filename
