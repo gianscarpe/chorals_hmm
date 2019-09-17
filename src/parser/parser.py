@@ -27,8 +27,8 @@ def tokens2notes(tokens):
             i += 1
     return notes
 
-def parse_dataset(data_path):
-    with open(data_path, 'rb') as f:
+def parse_chorales():
+    with open(os.path.join(DATA_DIR, 'chorales', 'vanilla', 'dataset.dt'), 'rb') as f:
         chorales = []
         for line in f.readlines():
             tokens = tokenize(line)
@@ -83,8 +83,8 @@ def tokens2music21_notes(tokens):
             i += 1
     return keysig, timesig, notes
 
-def dataset2music21_streams(data_path):
-    with open(data_path, 'rb') as f:
+def chorales2music21_streams():
+    with open(os.path.join(DATA_DIR, 'chorales', 'vanilla', 'dataset.dt'), 'rb') as f:
         streams = []
         for line in f.readlines():
             tokens = tokenize(line)
@@ -124,16 +124,14 @@ def states2music21_stream(states, vocab, our=True):
 def states2notes(states, vocab):
     return [vocab[state] for state in states]
 
-def dataset2states(data_path, vocab, our=False):
+def dataset2states(dataset, vocab, our=False):
     states_dataset = []
     if our:
-        dataset = parse_dataset(data_path)
         for chorale in dataset:
             states_dataset.append([vocab.index(note) for note in chorale])
     else:
-        m21_dataset = load_pickle(data_path)
-        for song in m21_dataset:
-            states_dataset.append([vocab.index((elem['pitch'], elem['duration'])) for elem in song])
+        for song in dataset:
+            states_dataset.append([vocab.index((note['pitch'], note['duration'])) for note in song])
     return states_dataset
 
 def parse_music21_obj(music21_obj):
@@ -170,15 +168,13 @@ def parse_music21_obj(music21_obj):
             timesig = elem.ratioString
     return parsed_music21_obj
 
-def parse_music21_dataset(
-    our=False, 
-    streams=None, 
+def parse_music21_dataset( 
     author='bach', 
     instrument='soprano', 
     transposing_key='C'):
 
     dataset = []
-    if not our:
+    if author != 'our':
         print('Parsing dataset from music21')
         scores = music21.corpus.search(author, 'composer')
         if scores != []:
@@ -192,9 +188,12 @@ def parse_music21_dataset(
                 if chosen_part is not None:
                     if transposing_key is not None:
                         k = chosen_part.analyze('key')
-                        i = music21.interval.Interval(k.tonic, music21.pitch.Pitch(transposing_key))
-                        chosen_part = chosen_part.flat.transpose(i, inPlace=False)
-                        print('Trasposing from {} to {}'.format(k.tonic, transposing_key))
+                        if k.tonic != music21.pitch.Pitch(transposing_key):
+                            i = music21.interval.Interval(k.tonic, music21.pitch.Pitch(transposing_key))
+                            print('Trasposing from {} to {}'.format(k.tonic, transposing_key))
+                            chosen_part = chosen_part.flat.transpose(i, inPlace=False)
+                        else:
+                            print('No need to transpose song')
                     parsed_part = parse_music21_obj(chosen_part)
                     if parsed_part != []:
                         dataset.append(parsed_part)
@@ -205,13 +204,16 @@ def parse_music21_dataset(
             return
     else:
         print('Parsing our dataset')
-        if streams is not None:
-            for song in streams:
-                if transposing_key is not None:
-                    k = song.analyze('key')
+        streams = chorales2music21_streams()
+        for song in streams:
+            if transposing_key is not None:
+                k = song.analyze('key')
+                if k.tonic != music21.pitch.Pitch(transposing_key):
                     i = music21.interval.Interval(k.tonic, music21.pitch.Pitch(transposing_key))
-                    song = song.flat.transpose(i, inPlace=False)
                     print('Trasposing from {} to {}'.format(k.tonic, transposing_key))
-                parsed_song = parse_music21_obj(song)
-                dataset.append(parsed_song)
+                    song = song.flat.transpose(i, inPlace=False)
+                else:
+                    print('No need to transpose song')
+            parsed_song = parse_music21_obj(song)
+            dataset.append(parsed_song)
     return dataset
