@@ -13,8 +13,8 @@ M: from 2 to 9
 
 '''
 
-vocabs = load_pickle(os.path.join(DATA_DIR, 'bach_chorales', 'vocab.pkl'))
-parsed_dataset = load_pickle('./dataset/bach_chorales/parsed_dataset.pkl')
+vocabs = load_pickle(os.path.join(DATA_DIR, 'music21', 'vocab.pkl'))
+parsed_dataset = load_pickle('./dataset/music21/bach_states_dataset.pkl')
 
 dataset = np.array(list(map(np.array, parsed_dataset)))
 training_set = dataset[:60]  # parsed training set state
