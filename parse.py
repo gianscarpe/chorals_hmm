@@ -57,24 +57,33 @@ class CommandParser(object):
         )
         parser.add_argument(
             '--transposing-key', 
-            default='C',
+            default=None,
             action='store'
         )
         parser.add_argument(
             '--to-states',
             action='store_true'
         )
+        parser.add_argument(
+            '--combined',
+            action='store_true'
+        )
         # now that we're inside a subcommand, ignore the first
         # TWO argvs, ie the command (git) and the subcommand (commit)
         args = parser.parse_args(sys.argv[2:])
         args.path = path.abspath(args.path)
-        m21_dataset = parse_music21_dataset(args.author, args.instrument, args.transposing_key)
-        if args.author == 'our':
+        if args.combined:
+            m21_dataset = parse_music21_dataset('bach', 'soprano', args.transposing_key)
+            m21_dataset.extend(parse_music21_dataset(author='our'))
+        else:
+            m21_dataset = parse_music21_dataset(args.author, args.instrument, args.transposing_key)
+        if args.combined:
+            name = 'bach_dataset.pkl'
+        elif args.author == 'our':
             name = 'chorales_dataset.pkl'
-            dirname = path.join(args.path, 'chorales', 'music21')
         else:
             name = args.author + '_dataset.pkl'
-            dirname = path.join(args.path, 'music21')
+        dirname = args.path
         if not path.exists(dirname):
             os.makedirs(dirname)
         filename = path.join(dirname, name)
@@ -114,6 +123,8 @@ class CommandParser(object):
         # TWO argvs, ie the command (git) and the subcommand (commit)
         args = parser.parse_args(sys.argv[2:])
         args.path = path.abspath(args.path)
+        if not path.exists(args.path):
+            os.makedirs(args.path)
         datasets_in_dir = [
             filename for filename in os.listdir(args.path) 
             if filename.endswith('dataset.pkl') and not 'states' in filename
