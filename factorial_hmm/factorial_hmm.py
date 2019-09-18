@@ -734,10 +734,6 @@ class FullDiscreteFactorialHMM(FactorialHMMDiscreteObserved):
 
         return H
 
-    def cumulate_params(self, observed_states, alphas, betas, gammas,
-                        cumulated_result):
-
-
     def update_params(self, observed_states, alphas, betas, gammas,
                       scaling_constants, params):
         # Shortcuts
