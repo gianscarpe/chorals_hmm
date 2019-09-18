@@ -122,9 +122,9 @@ if __name__ == "__main__":
             os.makedirs(os.path.join(BASE_DIR, 'music_sheet'))
         stream.write('musicxml.pdf',
                      os.path.join(BASE_DIR, 'music_sheet', model_name + '.xml'))
-        if not os.path.exists(os.path.join(MIDI_DIR, 'fhmm')):
-            os.makedirs(os.path.join(MIDI_DIR, 'fhmm'))
-        stream2midi(stream, os.path.join(MIDI_DIR, 'fhmm', model_name + '.mid'))
+        if not os.path.exists(os.path.join(MIDI_DIR, 'hmm')):
+            os.makedirs(os.path.join(MIDI_DIR, 'hmm'))
+        stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', model_name + '.mid'))
 
     if generate_original:
         chorale_num = random.randint(0, trainset_size - 1)
