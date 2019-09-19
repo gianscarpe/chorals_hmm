@@ -19,6 +19,7 @@ def init(data_path, size):
 
     if size == 'all':
         trainset = dataset
+        testset = None
     else:
         trainset_size = int(size)
         trainset = dataset[:trainset_size]
@@ -38,12 +39,14 @@ def prepare_dataset(dataset):
 def test(model, testset):
     likelihoods = [model.score(song) for song in testset]
     infs = sum(1 if math.isinf(ll) else 0 for ll in likelihoods)
-    print('#infs {} on {}-length'.format(infs, len(likelihoods)))
+    infs_string = '#infs {} on {}-length'.format(infs, len(likelihoods))
     likelihoods = [ll for ll in likelihoods if not math.isinf(ll)]
     if likelihoods != []:
-        print("AVG: {}".format(statistics.mean(likelihoods)))
+        likelihood_mean = statistics.mean(likelihoods)
+        result = "AVG: " + str(likelihood_mean)
     else:
-        print("AVG: 0")
+        result = "AVG: 0"
+    return infs_string, result
 
 def train(n_components, n_iter, n_features, trainset, trainset_lengths, size):
 
@@ -53,7 +56,7 @@ def train(n_components, n_iter, n_features, trainset, trainset_lengths, size):
     model.fit(numpy.concatenate(trainset), trainset_lengths)
     model_name = 'M-' + str(n_components) + '-ts-' + str(size) + '-nit-' + str(n_iter)
     save_pickle(model, os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
-    return model
+    return model, model_name
 
 
 #music21.environment.set('musicxmlPath', '/usr/bin/musescore')

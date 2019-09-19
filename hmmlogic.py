@@ -1,12 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 from flask_bootstrap import Bootstrap
 import os
 import main_gui as hmm
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
-
-testset = None
+app.secret_key = "secret"
 
 @app.route('/')
 @app.route('/index')
@@ -29,6 +28,7 @@ def sample():
 
 @app.route('/train', methods = ['POST'])
 def training():
+    flag_test = False
     if request.method == "POST":
         parameters = request.form
         size = parameters.get("size")
@@ -38,16 +38,30 @@ def training():
         components = int(parameters.get("n_components"))
         trainset, testset, vocabs = hmm.init(os.path.join(hmm.DATA_DIR, 'music21', 'bach_states_dataset.pkl'), size)
         obs_train, train_lengths = hmm.prepare_dataset(trainset)
-        obs_test, test_lengths = hmm.prepare_dataset(testset)
-        model = hmm.train(components, iter, len(vocabs), obs_train, train_lengths, size)
-        print(model)
-    return render_template("train_hmm.html", link="/", flag = True)
+        model, name = hmm.train(components, iter, len(vocabs), obs_train, train_lengths, size)
+        session['model'] = name
+        session['size'] = size
+        if model is not None:
+            flag_test = True
+
+    return render_template("train_hmm.html", link="/", flag = True, flag_test = flag_test)
 
 @app.route('/test', methods = ['POST'])
 def testing():
+    model_name = session['model'] + '.pkl'
+    size = session['size']
+    model = hmm.load_pickle(os.path.join(hmm.MODELS_DIR, 'hmm', model_name))
     if request.method == "POST":
-        file = request.files["file"]
+        if request.files['testset'].filename != "":
+            pkl = request.files['testset']
+            testset = hmm.load_pickle(os.path.join(hmm.DATA_DIR, 'music21', pkl.filename))
+        else:
+            dataset = hmm.load_pickle(os.path.join(hmm.DATA_DIR, 'music21', 'bach_states_dataset.pkl'))
+            testset = dataset[size:]
 
-    return render_template("train_hmm.html", link="/")
+    obs_test, test_lengths = hmm.prepare_dataset(testset)
+    infs, means = hmm.test(model, obs_test)
+    return render_template("train_hmm.html", link="/", flag_test = True, infs = infs, means = means)
+
 if __name__ == '__main__':
     app.run(debug=True)

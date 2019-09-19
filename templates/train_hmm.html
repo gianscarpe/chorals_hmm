@@ -12,28 +12,33 @@
      </style>
      <div class="page">
         <div class="column">
-            <h1>Train HMM</h1>
+            <h1>Train HMM</h1></br>
             <h2>Select parameters</h2>
             <form action = "train" method = "POST">
                 Trainset size: <input type="text" name = "size" required></br></br>
                 States number: <input type="text" name = "n_components" required></br></br>
                 Iteration number: <input type="text" name = "n_iter" required></br></br>
-                <input class="btn btn-primary" type="submit" value="Submit">
+                <input class="btn btn-primary" type="submit" value="Train">
             </form>
             {% if flag %}
                 <h3>Model successfully trained!</h3>
             {% endif %}
-            </br>
+            </br></br></br>
+            <a href={{link}} class="btn btn-primary" role="button">Home</a>
         </div>
      <div class="column">
-         <h1>Test model</h1></br>
-         <h2>Select testset</h2>
-          <form action = "test" method = "POST" enctype = "multipart/form-data">
-              <input type="file" name="file"></br>
-              <input class="btn btn-primary" type="submit" value="Submit">
-          </form>
-         </br>
+         {% if flag_test %}
+             <h1>Test model</h1></br>
+             <form action = "test" method = "POST" enctype = "multipart/form-data">
+                 <input type = "file" name = "testset"></br>
+                 <input class="btn btn-primary" type = "submit" value = "Test">
+             </form>
+             </br>
+             {% if infs and means %}
+                <h3>{{infs}}</h3></br>
+                <h3>{{means}}</h3></br>
+             {% endif %}
+         {% endif %}
      </div>
     </div>
-    <a href={{link}} class="btn btn-primary" role="button">Home</a>
 {% endblock %}
