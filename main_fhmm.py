@@ -94,7 +94,7 @@ if __name__ == "__main__":
         testset = load_pickle(os.path.join(args.dataset_dir, args.testset_name))
     else:
         if trainset_size < len(dataset):
-            testset = dataset[:trainset_size]
+            testset = dataset[trainset_size:]
         else:
             print('Not enough data for the test size')
             exit(1)

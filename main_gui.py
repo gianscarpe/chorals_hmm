@@ -12,12 +12,30 @@ from src.parser.parser import states2notes, states2music21_stream
 from src.helpers import load_pickle, save_pickle, stream2midi
 from hmmlearn import hmm
 
+
+def init(data_path, size):
+    vocabs = load_pickle(os.path.join(DATA_DIR, 'music21', 'vocabs.pkl'))
+    dataset = load_pickle(data_path)
+
+    if size == 'all':
+        trainset = dataset
+    else:
+        trainset_size = int(size)
+        trainset = dataset[:trainset_size]
+        testset = None
+        if trainset_size < len(dataset):
+            testset = dataset[trainset_size:]
+        else:
+            print('Not enough data for the test size')
+            exit(1)
+    return trainset, testset, vocabs
+
 def prepare_dataset(dataset):
     dataset = [numpy.array([state for state in song]).reshape(-1, 1) for song in dataset]
     lengths = [len(song) for song in dataset]
     return dataset, lengths
 
-def test(model, testset, test_lengths):
+def test(model, testset):
     likelihoods = [model.score(song) for song in testset]
     infs = sum(1 if math.isinf(ll) else 0 for ll in likelihoods)
     print('#infs {} on {}-length'.format(infs, len(likelihoods)))
@@ -27,18 +45,21 @@ def test(model, testset, test_lengths):
     else:
         print("AVG: 0")
 
-def train(n_components, n_iter, n_features, trainset, trainset_lengths):
+def train(n_components, n_iter, n_features, trainset, trainset_lengths, size):
+
+    hmm.MultinomialHMM._check_input_symbols = lambda *_: True
     model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter)
-#    model.monitor_.verbose = args.verbose
     model.n_features = n_features
     model.fit(numpy.concatenate(trainset), trainset_lengths)
+    model_name = 'M-' + str(n_components) + '-ts-' + str(size) + '-nit-' + str(n_iter)
+    save_pickle(model, os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
     return model
 
 
 #music21.environment.set('musicxmlPath', '/usr/bin/musescore')
 #music21.environment.set('graphicsPath', '/usr/bin/musescore')
 #music21.environment.set('musescoreDirectPNGPath', '/usr/bin/musescore')
-
+'''
 if __name__ == "__main__":
     print(" -- main.py HMM --\n")
     parser = argparse.ArgumentParser(description='Train and test HMM')
@@ -97,6 +118,7 @@ if __name__ == "__main__":
 
     obs_train, train_lengths = prepare_dataset(trainset)
     obs_test, test_lengths = prepare_dataset(testset)
+    music21.environment.set('lilypondPath', 'C:/LilyPond/usr/bin/lilypond.exe')
 
     model_name = 'M-' + str(n_components) + '-ts-' + str(trainset_size) + '-nit-' + str(n_iter)
 
@@ -110,6 +132,7 @@ if __name__ == "__main__":
             print('SPecify the model path running this command with --model-path PATH-TO-MODEL')
             exit(1)
         model = load_pickle(os.path.abspath(args.model_path))
+    
 
     # Print likelihoods
     test(model, obs_test, test_lengths)
@@ -121,14 +144,19 @@ if __name__ == "__main__":
         stream = states2music21_stream(sample, vocabs, our=False)
         if not os.path.exists(os.path.join(BASE_DIR, 'music_sheet')):
             os.makedirs(os.path.join(BASE_DIR, 'music_sheet'))
-        stream.write('musicxml.pdf',
-                     os.path.join(BASE_DIR, 'music_sheet', model_name + '.xml'))
-        if not os.path.exists(os.path.join(MIDI_DIR, 'hmm')):
-            os.makedirs(os.path.join(MIDI_DIR, 'hmm'))
-        stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', model_name + '.mid'))
+        conv = music21.converter.subConverters.ConverterLilypond()
+        conv.write(stream, fmt='lilypond', fp=model_name, subformats=['png'])
+        files = os.listdir(BASE_DIR)
+        for item in files:
+            if item.endswith(".eps") or item.endswith(".count") or item.endswith(".tex") or item.endswith(".texi"):
+                os.remove(os.path.join(BASE_DIR, item))
+        if not os.path.exists(os.path.join(MIDI_DIR, 'fhmm')):
+            os.makedirs(os.path.join(MIDI_DIR, 'fhmm'))
+        stream2midi(stream, os.path.join(MIDI_DIR, 'fhmm', model_name + '.mid'))
 
     if generate_original:
         chorale_num = random.randint(0, trainset_size - 1)
         sample = trainset[chorale_num]
         stream = states2music21_stream(sample, vocabs)
         stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + str(chorale_num) + '.mid'))
+    '''
