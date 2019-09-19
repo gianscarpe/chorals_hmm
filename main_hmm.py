@@ -49,9 +49,9 @@ def train(n_components, n_iter, n_features, trainset, trainset_lengths, framewor
     return model
 
 
-#music21.environment.set('musicxmlPath', '/usr/bin/musescore')
-#music21.environment.set('graphicsPath', '/usr/bin/musescore')
-#music21.environment.set('musescoreDirectPNGPath', '/usr/bin/musescore')
+music21.environment.set('musicxmlPath', '/usr/bin/musescore')
+music21.environment.set('graphicsPath', '/usr/bin/musescore')
+music21.environment.set('musescoreDirectPNGPath', '/usr/bin/musescore')
 
 if __name__ == "__main__":
     print(" -- main.py HMM --\n")
