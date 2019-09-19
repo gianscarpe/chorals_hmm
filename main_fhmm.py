@@ -1,3 +1,4 @@
+import music21
 from factorial_hmm import FullDiscreteFactorialHMM
 import numpy
 import itertools
