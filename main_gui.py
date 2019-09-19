@@ -6,68 +6,65 @@ import numpy
 import random
 import argparse
 import itertools
-import pomegranate
+import statistics
 from src import BASE_DIR, DATA_DIR, MODELS_DIR, MIDI_DIR
 from src.parser.parser import states2notes, states2music21_stream
 from src.helpers import load_pickle, save_pickle, stream2midi
 from hmmlearn import hmm
+
+
+def init(data_path, size):
+    vocabs = load_pickle(os.path.join(DATA_DIR, 'music21', 'vocabs.pkl'))
+    dataset = load_pickle(data_path)
+
+    if size == 'all':
+        trainset = dataset
+    else:
+        trainset_size = int(size)
+        trainset = dataset[:trainset_size]
+        testset = None
+        if trainset_size < len(dataset):
+            testset = dataset[trainset_size:]
+        else:
+            print('Not enough data for the test size')
+            exit(1)
+    return trainset, testset, vocabs
 
 def prepare_dataset(dataset):
     dataset = [numpy.array([state for state in song]).reshape(-1, 1) for song in dataset]
     lengths = [len(song) for song in dataset]
     return dataset, lengths
 
-def test(model, testset, test_lengths, framework):
-    if framework == 'hmml':
-        likelihoods = numpy.array([model.score(song) for song in testset], dtype=numpy.float64)
-    else:
-        likelihoods = numpy.array([model.log_probability(numpy.array(song), check_input=False) for song in testset], dtype=numpy.float64)
-    infs = sum(1 if numpy.isneginf(ll) else 0 for ll in likelihoods)
-    avg = numpy.mean(likelihoods)
-    print("AVG: {}".format(avg))
+def test(model, testset):
+    likelihoods = [model.score(song) for song in testset]
+    infs = sum(1 if math.isinf(ll) else 0 for ll in likelihoods)
     print('#infs {} on {}-length'.format(infs, len(likelihoods)))
-    return avg, infs
-
-<<<<<<< HEAD
-def train(n_components, n_iter, n_features, trainset, trainset_lengths, framework):
-    if framework == 'hmml':
-        print(' -- TRAINING WITH hmmlearn --\n')
-        model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter)
-        model.monitor_.verbose = args.verbose
-        model.n_features = n_features
-        model.fit(numpy.concatenate(trainset), trainset_lengths)
+    likelihoods = [ll for ll in likelihoods if not math.isinf(ll)]
+    if likelihoods != []:
+        print("AVG: {}".format(statistics.mean(likelihoods)))
     else:
-        print(' -- TRAINING WITH pomegranate --\n')
-        model = pomegranate.HiddenMarkovModel.from_samples(
-                    pomegranate.DiscreteDistribution,
-                    n_components=n_components,
-                    X=obs_train,
-                    algorithm='baum-welch',
-                    min_iterations=0,
-                    max_iterations=n_iter,
-                    verbose=args.verbose)
-        model.bake(verbose=args.verbose)
-=======
-def train(n_components, n_iter, n_features, trainset, trainset_lengths):
+        print("AVG: 0")
+
+def train(n_components, n_iter, n_features, trainset, trainset_lengths, size):
+
+    hmm.MultinomialHMM._check_input_symbols = lambda *_: True
     model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter)
-#    model.monitor_.verbose = args.verbose
     model.n_features = n_features
     model.fit(numpy.concatenate(trainset), trainset_lengths)
->>>>>>> 2688bdbd484a94965274774c30e0e07747a16e75
+    model_name = 'M-' + str(n_components) + '-ts-' + str(size) + '-nit-' + str(n_iter)
+    save_pickle(model, os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
     return model
 
 
 #music21.environment.set('musicxmlPath', '/usr/bin/musescore')
 #music21.environment.set('graphicsPath', '/usr/bin/musescore')
 #music21.environment.set('musescoreDirectPNGPath', '/usr/bin/musescore')
-
+'''
 if __name__ == "__main__":
     print(" -- main.py HMM --\n")
     parser = argparse.ArgumentParser(description='Train and test HMM')
     parser.add_argument('-M', type=int, default=2, help='value M of states')
-    parser.add_argument('-N', type=int, default=50, help='Number of iterations')
-    parser.add_argument('-F', '--framework', type=str, default='pom',
-                        help='Choose which framework you want to use to train the HMM: pom (pomegranate) or hmml (hmmlearn)')
+    parser.add_argument('-N', type=int, default=15, help='Number of iterations')
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="increase output verbosity")
     parser.add_argument("-s", "--save-model", action="store_true",
@@ -119,26 +116,15 @@ if __name__ == "__main__":
     hmm_generate = args.generate
     generate_original = False
 
-    if args.framework == 'hmml':
-        obs_train, train_lengths = prepare_dataset(trainset)
-        obs_test, test_lengths = prepare_dataset(testset)
-        obs_vocab = [numpy.array([[i] for i, _ in enumerate(vocabs)]).reshape(-1, 1)]
-        train_lengths.insert(0, len(vocabs))
-        obs_train = obs_vocab + obs_train
-    elif args.framework == 'pom':
-        obs_train = trainset
-        train_lengths = None
-        obs_test = testset
-        test_lengths = None
-    else:
-        print('You must choose a valid framework: pom (pomegranate) or hhml (hmmlearn)')
-        exit(1)
+    obs_train, train_lengths = prepare_dataset(trainset)
+    obs_test, test_lengths = prepare_dataset(testset)
+    music21.environment.set('lilypondPath', 'C:/LilyPond/usr/bin/lilypond.exe')
 
-    model_name = args.framework + '-M-' + str(n_components) + '-ts-' + str(trainset_size) + '-nit-' + str(n_iter)
+    model_name = 'M-' + str(n_components) + '-ts-' + str(trainset_size) + '-nit-' + str(n_iter)
 
     if not args.skip_training:
-        # hmm.MultinomialHMM._check_input_symbols = lambda *_: True
-        model = train(n_components, n_iter, len(vocabs), obs_train, train_lengths, args.framework)
+        hmm.MultinomialHMM._check_input_symbols = lambda *_: True
+        model = train(n_components, n_iter, len(vocabs), obs_train, train_lengths)
         if args.save_model:
             save_pickle(model, os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
     else:
@@ -146,28 +132,31 @@ if __name__ == "__main__":
             print('SPecify the model path running this command with --model-path PATH-TO-MODEL')
             exit(1)
         model = load_pickle(os.path.abspath(args.model_path))
+    
 
     # Print likelihoods
-    test(model, obs_test, test_lengths, args.framework)
+    test(model, obs_test, test_lengths)
 
     # Generate song
     if hmm_generate:
-        if args.framework == 'hmml':
-            sample, _ = model.sample(50)
-            sample = list(itertools.chain(*sample))
-        else:
-            sample = model.sample(length=50)
+        sample, _ = model.sample(50)
+        sample = list(itertools.chain(*sample))
         stream = states2music21_stream(sample, vocabs, our=False)
         if not os.path.exists(os.path.join(BASE_DIR, 'music_sheet')):
             os.makedirs(os.path.join(BASE_DIR, 'music_sheet'))
-        stream.write('musicxml.pdf',
-                     os.path.join(BASE_DIR, 'music_sheet', model_name + '.xml'))
-        if not os.path.exists(os.path.join(MIDI_DIR, 'hmm')):
-            os.makedirs(os.path.join(MIDI_DIR, 'hmm'))
-        stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', model_name + '.mid'))
+        conv = music21.converter.subConverters.ConverterLilypond()
+        conv.write(stream, fmt='lilypond', fp=model_name, subformats=['png'])
+        files = os.listdir(BASE_DIR)
+        for item in files:
+            if item.endswith(".eps") or item.endswith(".count") or item.endswith(".tex") or item.endswith(".texi"):
+                os.remove(os.path.join(BASE_DIR, item))
+        if not os.path.exists(os.path.join(MIDI_DIR, 'fhmm')):
+            os.makedirs(os.path.join(MIDI_DIR, 'fhmm'))
+        stream2midi(stream, os.path.join(MIDI_DIR, 'fhmm', model_name + '.mid'))
 
     if generate_original:
         chorale_num = random.randint(0, trainset_size - 1)
         sample = trainset[chorale_num]
         stream = states2music21_stream(sample, vocabs)
         stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + str(chorale_num) + '.mid'))
+    '''
