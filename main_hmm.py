@@ -102,7 +102,7 @@ if __name__ == "__main__":
         trainset = dataset
     else:
         trainset_size = int(args.trainset_size)
-        trainset = dataset[:trainset_size]
+        trainset = dataset[trainset_size:]
     if args.testset_name is not None:
         testset = load_pickle(os.path.join(args.dataset_dir, args.testset_name))
     else:
