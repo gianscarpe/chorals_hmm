@@ -28,7 +28,6 @@ def test(model, testset, test_lengths, framework):
     print('#infs {} on {}-length'.format(infs, len(likelihoods)))
     return avg, infs
 
-<<<<<<< HEAD
 def train(n_components, n_iter, n_features, trainset, trainset_lengths, framework):
     if framework == 'hmml':
         print(' -- TRAINING WITH hmmlearn --\n')
@@ -47,13 +46,6 @@ def train(n_components, n_iter, n_features, trainset, trainset_lengths, framewor
                     max_iterations=n_iter,
                     verbose=args.verbose)
         model.bake(verbose=args.verbose)
-=======
-def train(n_components, n_iter, n_features, trainset, trainset_lengths):
-    model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter)
-#    model.monitor_.verbose = args.verbose
-    model.n_features = n_features
-    model.fit(numpy.concatenate(trainset), trainset_lengths)
->>>>>>> 2688bdbd484a94965274774c30e0e07747a16e75
     return model
 
 
