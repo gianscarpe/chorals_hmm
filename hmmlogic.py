@@ -20,11 +20,15 @@ def train_hmm():
 def music_generator():
     return render_template("music_generator.html", link = "/")
 
-@app.route('/sample')
+@app.route('/sample', methods = ['POST'])
 def sample():
-    print("Call function")
-    midi = "static/generated_hmm_60_10_200.mid"
-    return render_template("music_generator.html", image = "static/image.png", link = "/", midi = midi)
+    image = None
+    midi = None
+    if request.method == "POST":
+        model_name = request.files['model'].filename
+        model = hmm.load_pickle(os.path.join(hmm.MODELS_DIR, 'hmm', model_name))
+        image, midi = hmm.generate_sample(model, model_name)
+    return render_template("music_generator.html", image = image, link = "/", midi = midi)
 
 @app.route('/train', methods = ['POST'])
 def training():

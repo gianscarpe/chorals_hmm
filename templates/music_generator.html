@@ -1,12 +1,9 @@
 {% extends 'bootstrap/base.html' %}
 {% block content %}
-    <form action="sample">
-        <table style="width:25%">
-          <tr>
-             <th><h3>Generate music</h3></th>
-             <th><button type="submit" class = "btn btn-success">Generate</button></th>
-          </tr>
-        </table>
+    <form action="sample" method="POST" enctype = "multipart/form-data">
+     <h3>Generate music</h3></th>
+        <input type = "file" name = "model"></br>
+        <button type="submit" class = "btn btn-success">Generate</button>
     </form>
 
     {% if image %}
