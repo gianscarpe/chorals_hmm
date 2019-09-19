@@ -1,5 +1,6 @@
+import music21
 from factorial_hmm import FullDiscreteFactorialHMM
-import numpy as np
+import numpy
 import itertools
 import os
 from src import BASE_DIR, DATA_DIR, MODELS_DIR, MIDI_DIR
@@ -16,13 +17,16 @@ M: from 2 to 9
 
 '''
 
+music21.environment.set('musicxmlPath', '/usr/bin/musescore')
+music21.environment.set('graphicsPath', '/usr/bin/musescore')
+music21.environment.set('musescoreDirectPNGPath', '/usr/bin/musescore')
 
 def train(params, M, K, n_iterations, model_name, verbose, random_seed=42):
     print(" -- Training FHMM --\n")
-    random_state = np.random.RandomState(random_seed)
+    random_state = numpy.random.RandomState(random_seed)
     for i in range(M):
         # matrix = random_state.random_sample((K, K))
-        # matrix /= matrix.sum(axis=0)[np.newaxis, :]
+        # matrix /= matrix.sum(axis=0)[numpy.newaxis, :]
         params['transition_matrices'][i][:][:] = [[1 / K] * K] * K
 
         # params['transition_matrices'][i][:][:] = [ [1 - ps[0], ps[1]], [ps[0], 1 - ps[1]]]
@@ -41,11 +45,11 @@ def train(params, M, K, n_iterations, model_name, verbose, random_seed=42):
 
 def test(model, testset):
     print(" -- Testing FHMM --\n")
-    log_likelihoods = np.array(
-        [model.Forward(np.array(testset[i]))[2] for i, sequence in
+    log_likelihoods = numpy.array(
+        [model.Forward(numpy.array(testset[i]))[2] for i, sequence in
          enumerate(testset)])
 
-    print(f"Test likelihood {np.mean(log_likelihoods)}")
+    print(f"Test likelihood {numpy.mean(log_likelihoods)}")
 
 
 if __name__ == "__main__":
@@ -83,7 +87,7 @@ if __name__ == "__main__":
     vocabs = load_pickle(os.path.join(args.dataset_dir, 'vocab.pkl'))
     parsed_dataset = load_pickle(fullname)
 
-    dataset = np.array(list(map(np.array, parsed_dataset)))
+    dataset = numpy.array(list(map(numpy.array, parsed_dataset)))
     if args.trainset_size == 'all':
         trainset_size = len(dataset)
         trainset = dataset
@@ -110,9 +114,9 @@ if __name__ == "__main__":
 
     params = {'hidden_alphabet_size': K, 'n_hidden_chains': M,
               'observed_alphabet_size': D, 'n_observed_chains': 1,
-              'initial_hidden_state': np.zeros((M, K)),
-              'transition_matrices': np.zeros((M, K, K)),
-              'obs_given_hidden': np.zeros([K] * M + [D])}
+              'initial_hidden_state': numpy.zeros((M, K)),
+              'transition_matrices': numpy.zeros((M, K, K)),
+              'obs_given_hidden': numpy.zeros([K] * M + [D])}
 
     model_name = f"K-{K}-M-{M}-ts-{trainset_size}-nit-{n_iterations}"
 
