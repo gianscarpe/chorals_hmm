@@ -37,11 +37,12 @@ def train(params, M, K, n_iterations, model_name, verbose, random_seed=42):
         R /= R.sum()
         params['obs_given_hidden'][list(st) + [Ellipsis]] = R
 
-    hmm = FullDiscreteFactorialHMM(params=params, n_steps=1000,
+    hmm = FullDiscreteFactorialHMM(params=params, n_steps=100,
                                    calculate_on_init=True)
     hmm = hmm.EM(trainset, n_iterations=n_iterations,
-                                    verbose=verbose)
+                 verbose=verbose)
     return hmm
+
 
 def test(model, testset):
     print(" -- Testing FHMM --\n")
@@ -72,10 +73,11 @@ if __name__ == "__main__":
     parser.add_argument("--generate", action="store_true",
                         help="Generate a midi file")
     parser.add_argument("--dataset-dir", type=str,
-                        default=os.path.join(DATA_DIR, 'music21'),
+                        default=os.path.join(DATA_DIR, 'chorales', 'music21'),
                         help="Dataset base dir")
     parser.add_argument("--trainset-name", type=str,
-                        default=os.path.join(DATA_DIR, 'music21', 'bach_states_dataset.pkl'),
+                        default=os.path.join(DATA_DIR, 'chorales', 'music21',
+                                             'chorales_states_dataset.pkl'),
                         help="Dataset base dir")
     parser.add_argument("--testset-name", type=str,
                         default=None,
@@ -84,7 +86,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     fullname = os.path.join(args.dataset_dir, args.trainset_name)
-    vocabs = load_pickle(os.path.join(args.dataset_dir, 'vocab.pkl'))
+    vocabs = load_pickle(os.path.join(args.dataset_dir, 'vocabs.pkl'))
     parsed_dataset = load_pickle(fullname)
 
     dataset = numpy.array(list(map(numpy.array, parsed_dataset)))
@@ -122,7 +124,8 @@ if __name__ == "__main__":
 
     if args.skip_training:
         if args.model_path is None:
-            print('SPecify the model path running this command with --model-path PATH-TO-MODEL')
+            print(
+                'SPecify the model path running this command with --model-path PATH-TO-MODEL')
             exit(1)
         trained_hmm = load_pickle(os.path.abspath(args.model_path))
     else:
