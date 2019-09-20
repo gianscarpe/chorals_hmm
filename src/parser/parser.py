@@ -100,7 +100,7 @@ def chorales2music21_streams():
                 streams.append(stream.makeMeasures())
         return streams
 
-def states2music21_stream(states, vocab, our=True):
+def states2music21_stream(states, vocab, our=False):
     stream = music21.stream.Stream()
     notes = []
     for state in states:
@@ -170,7 +170,8 @@ def parse_music21_obj(music21_obj):
 
 def parse_music21_dataset( 
     author='bach', 
-    instrument='soprano', 
+    instrument='soprano',
+    time_signature='4/4', 
     transposing_key='C'):
 
     dataset = []
@@ -178,6 +179,8 @@ def parse_music21_dataset(
         print('Parsing dataset from music21')
         scores = music21.corpus.search(author, 'composer')
         if scores != []:
+            # helper_stream = music21.stream.Stream()
+            print(author + ' scores: ', len(scores))
             for score in scores:
                 song = score.parse()
                 try:
@@ -186,6 +189,16 @@ def parse_music21_dataset(
                     print('Something wrong accessing {} part'.format(instrument))
                     continue
                 if chosen_part is not None:
+                    print('LEN TIME SIG: ', len(song.flat.getElementsByClass(music21.meter.TimeSignature)))
+                    if time_signature is not None:
+                        if chosen_part.flat.getElementsByClass(music21.meter.TimeSignature)[0].ratioString != '4/4':
+                            print('Changing time signature')
+                            chosen_part = chosen_part.flat.getElementsNotOfClass(music21.meter.TimeSignature).stream()
+                            chosen_part.insert(0, music21.meter.TimeSignature('4/4'))
+                            chosen_part.makeMeasures(inPlace=True)
+                            chosen_part = chosen_part.makeNotation()
+                        else:
+                            print('No need to change time signature')
                     if transposing_key is not None:
                         k = chosen_part.analyze('key')
                         if k.tonic != music21.pitch.Pitch(transposing_key):
@@ -194,11 +207,13 @@ def parse_music21_dataset(
                             chosen_part = chosen_part.flat.transpose(i, inPlace=False)
                         else:
                             print('No need to transpose song')
+                    # helper_stream.append(chosen_part.flat.notes)
                     parsed_part = parse_music21_obj(chosen_part)
                     if parsed_part != []:
                         dataset.append(parsed_part)
                 else:
                     print('{} part not found!'.format(instrument))
+            # helper_stream.plot('scatter', 'pitch', 'quarterLength')
         else:
             print('Author {} not found!'.format(author))
             return
@@ -206,6 +221,16 @@ def parse_music21_dataset(
         print('Parsing our dataset')
         streams = chorales2music21_streams()
         for song in streams:
+            print('LEN TIME SIG: ', len(song.flat.getElementsByClass(music21.meter.TimeSignature)))
+            if time_signature is not None:
+                if song.flat.getElementsByClass(music21.meter.TimeSignature)[0].ratioString != '4/4':
+                    print('Changing time signature')
+                    song = song.flat.getElementsNotOfClass(music21.meter.TimeSignature).stream()
+                    song.insert(0, music21.meter.TimeSignature('4/4'))
+                    song.makeMeasures(inPlace=True)
+                    song = song.makeNotation()
+                else:
+                    print('No need to change time signature')
             if transposing_key is not None:
                 k = song.analyze('key')
                 if k.tonic != music21.pitch.Pitch(transposing_key):

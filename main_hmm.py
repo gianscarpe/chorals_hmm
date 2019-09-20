@@ -23,6 +23,7 @@ def test(model, testset, test_lengths, framework):
     else:
         likelihoods = numpy.array([model.log_probability(numpy.array(song), check_input=False) for song in testset], dtype=numpy.float64)
     infs = sum(1 if numpy.isneginf(ll) else 0 for ll in likelihoods)
+    likelihoods = [ll for ll in likelihoods if not math.isinf(ll)]
     avg = numpy.mean(likelihoods)
     print("AVG: {}".format(avg))
     print('#infs {} on {}-length'.format(infs, len(likelihoods)))
@@ -31,7 +32,7 @@ def test(model, testset, test_lengths, framework):
 def train(n_components, n_iter, n_features, trainset, trainset_lengths, framework):
     if framework == 'hmml':
         print(' -- TRAINING WITH hmmlearn --\n')
-        model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter)
+        model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter, init_params='ste')
         model.monitor_.verbose = args.verbose
         model.n_features = n_features
         model.fit(numpy.concatenate(trainset), trainset_lengths)
@@ -46,6 +47,7 @@ def train(n_components, n_iter, n_features, trainset, trainset_lengths, framewor
                     max_iterations=n_iter,
                     verbose=args.verbose)
         model.bake(verbose=args.verbose)
+        print(model.state_count())
     return model
 
 
@@ -68,6 +70,7 @@ if __name__ == "__main__":
                         default='50',
                         help='Training set size')
     parser.add_argument('--skip-training', action='store_true')
+    parser.add_argument('--skip-testing', action='store_true')
     parser.add_argument('--model-path', type=str, action='store',
                         default=None,
                         help='Load model instead of training a new one')
@@ -94,7 +97,7 @@ if __name__ == "__main__":
         trainset = dataset
     else:
         trainset_size = int(args.trainset_size)
-        trainset = dataset[trainset_size:]
+        trainset = dataset[:trainset_size]
     if args.testset_name is not None:
         testset = load_pickle(os.path.join(args.dataset_dir, args.testset_name))
     else:
@@ -105,7 +108,6 @@ if __name__ == "__main__":
             exit(1)
 
     # Parameters
-    trainset_size = args.trainset_size
     n_components = args.M
     n_iter = args.N
     hmm_generate = args.generate
@@ -115,7 +117,11 @@ if __name__ == "__main__":
         obs_train, train_lengths = prepare_dataset(trainset)
         obs_test, test_lengths = prepare_dataset(testset)
         obs_vocab = [numpy.array([[i] for i, _ in enumerate(vocabs)]).reshape(-1, 1)]
+        numpy.random.shuffle(obs_vocab[0])
         train_lengths.insert(0, len(vocabs))
+        # Since hmmlearn does not support unseen observations
+        # we inject at first all the observations that the model
+        # can possible emit, namely our vocab dataset [0, 1, 2, ..., len(vocab) - 1]
         obs_train = obs_vocab + obs_train
     elif args.framework == 'pom':
         obs_train = trainset
@@ -140,7 +146,8 @@ if __name__ == "__main__":
         model = load_pickle(os.path.abspath(args.model_path))
 
     # Print likelihoods
-    test(model, obs_test, test_lengths, args.framework)
+    if not args.skip_testing:
+        test(model, obs_test, test_lengths, args.framework)
 
     # Generate song
     if hmm_generate:
@@ -158,8 +165,14 @@ if __name__ == "__main__":
             os.makedirs(os.path.join(MIDI_DIR, 'hmm'))
         stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', model_name + '.mid'))
 
-    if generate_original:
-        chorale_num = random.randint(0, trainset_size - 1)
+    if True:
+        chorale_num = 0
         sample = trainset[chorale_num]
         stream = states2music21_stream(sample, vocabs)
-        stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + str(chorale_num) + '.mid'))
+        if not os.path.exists(os.path.join(BASE_DIR, 'music_sheet')):
+            os.makedirs(os.path.join(BASE_DIR, 'music_sheet'))
+        stream.write('musicxml.pdf',
+                     os.path.join(BASE_DIR, 'music_sheet', 'generated' + '_' + str(1) + '.xml'))
+        if not os.path.exists(os.path.join(MIDI_DIR, 'hmm')):
+            os.makedirs(os.path.join(MIDI_DIR, 'hmm'))
+        stream2midi(stream, os.path.join(MIDI_DIR, 'hmm', 'generated' + '_' + str(1) + '.mid'))

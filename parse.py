@@ -61,6 +61,11 @@ class CommandParser(object):
             action='store'
         )
         parser.add_argument(
+            '--time-signature', 
+            default=None,
+            action='store'
+        )
+        parser.add_argument(
             '--to-states',
             action='store_true'
         )
@@ -73,10 +78,10 @@ class CommandParser(object):
         args = parser.parse_args(sys.argv[2:])
         args.path = path.abspath(args.path)
         if args.combined:
-            m21_dataset = parse_music21_dataset('bach', 'soprano', args.transposing_key)
-            m21_dataset.extend(parse_music21_dataset(author='our'))
+            m21_dataset = parse_music21_dataset('bach', 'soprano', args.time_signature, args.transposing_key)
+            m21_dataset.extend(parse_music21_dataset(author='our', time_signature=args.time_signature, transposing_key=args.transposing_key))
         else:
-            m21_dataset = parse_music21_dataset(args.author, args.instrument, args.transposing_key)
+            m21_dataset = parse_music21_dataset(args.author, args.instrument, args.time_signature, args.transposing_key)
         if args.combined:
             name = 'bach_dataset.pkl'
         elif args.author == 'our':
@@ -90,8 +95,8 @@ class CommandParser(object):
         print('Saving parsed dataset to {}'.format(filename))
         save_pickle(m21_dataset, filename)
         if args.to_states:
-            if path.exists(path.join(dirname, 'vocab.pkl')):
-                vocab = load_pickle(path.join(dirname, 'vocab.pkl'))
+            if path.exists(path.join(dirname, 'vocabs.pkl')):
+                vocab = load_pickle(path.join(dirname, 'vocabs.pkl'))
             else:
                 print('You have to create the vocabulary first!\nRun parse.py vocab -h to see options')
                 exit(1)
@@ -144,10 +149,11 @@ class CommandParser(object):
                             durations.append(note['duration'])          
             pitches = list(set(pitches))
             durations = list(set(durations))
+            print(len(pitches), len(durations), min(pitches), max(pitches), min(durations), max(durations))
             vocab = list(itertools.product(pitches, durations))
             print('Vocab length: ', len(vocab))
-            print('Saving vocabs to {}'.format(path.join(args.path, 'vocab.pkl')))
-            save_pickle(vocab, path.join(args.path, 'vocab.pkl'))
+            print('Saving vocabs to {}'.format(path.join(args.path, 'vocabs.pkl')))
+            save_pickle(vocab, path.join(args.path, 'vocabs.pkl'))
         else:
             print('Specify a folder in which there\'s at least one dataset')
             exit(1)
