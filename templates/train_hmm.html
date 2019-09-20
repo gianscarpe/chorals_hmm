@@ -12,17 +12,22 @@
      </style>
      <div class="page">
         <div class="column">
-            <h1>Train HMM</h1></br>
+            <h1>Train HMM</h1>
             <h2>Select parameters</h2>
             <form action = "train" method = "POST">
                 Trainset size: <input type="text" name = "size" required></br></br>
                 States number: <input type="text" name = "n_components" required></br></br>
                 Iteration number: <input type="text" name = "n_iter" required></br></br>
-                Framework selection:
-                <select style="width:25%" name="framework" class="selectpicker form-control">
-                    <option value="hmml">hmml</option>
-                    <option value="pom">pomegranate</option>
-                </select></br></br>
+                {% if type == "hmm" %}
+                    Framework selection:
+                    <select style="width:25%" name="framework" class="selectpicker form-control">
+                        <option value="hmml">hmml</option>
+                        <option value="pom">pomegranate</option>
+                    </select></br></br>
+                {% endif %}
+                {% if type == "fhmm" %}
+                    K value: <input type="text" name = "k_value" required></br></br>
+                {% endif %}
                 <input class="btn btn-primary" type="submit" value="Train">
             </form>
             {% if flag %}
@@ -39,9 +44,12 @@
                  <input class="btn btn-primary" type = "submit" value = "Test">
              </form>
              </br>
-             {% if infs and means %}
+             {% if infs != "" and means != "" %}
                 <h3>{{infs}}</h3></br>
                 <h3>{{means}}</h3></br>
+             {% endif %}
+             {% if result != "" %}
+                <h3>{{result}}</h3></br>
              {% endif %}
          {% endif %}
      </div>

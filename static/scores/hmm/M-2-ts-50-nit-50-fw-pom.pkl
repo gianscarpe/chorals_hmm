@@ -1,0 +1,94 @@
+\version "2.18" 
+\include "lilypond-book-preamble.ly"
+    
+color = #(define-music-function (parser location color) (string?) #{
+        \once \override NoteHead #'color = #(x11-color color)
+        \once \override Stem #'color = #(x11-color color)
+        \once \override Rest #'color = #(x11-color color)
+        \once \override Beam #'color = #(x11-color color)
+     #})
+    
+\header { } 
+\score  { 
+ \new Voice { \new Voice { \clef "treble" 
+                \time 4/4
+                g' 2  
+                g' 4  
+                c' 4  
+                \bar "|"  %{ end measure 1 %} 
+                g' 4  
+                g' 4  
+                g 1  
+                \bar "|"  %{ end measure 2 %} 
+                g' 4  
+                bes 4  
+                \bar "|"  %{ end measure 3 %} 
+                f' 8  
+                f' 8  
+                d' 8  
+                e' 4  
+                f' 4  
+                e' 4  
+                \bar "|"  %{ end measure 4 %} 
+                ees' 8  
+                f' 4  
+                d' 4  
+                c' 2  
+                \bar "|"  %{ end measure 5 %} 
+                e' 8  
+                b' 4  
+                a' 4  
+                d' 4  
+                \bar "|"  %{ end measure 6 %} 
+                a' 4  
+                ees' 8  
+                c' 4  
+                c' 2  
+                \bar "|"  %{ end measure 7 %} 
+                d' 2  
+                ees' 8  
+                d' 2  
+                \bar "|"  %{ end measure 8 %} 
+                e' 4  
+                e' 4  
+                ees' 4  
+                \bar "|"  %{ end measure 9 %} 
+                ees' 4  
+                ees' 4  
+                d' 8  
+                c' 4  
+                \bar "|"  %{ end measure 10 %} 
+                c' 4  
+                ees' 4  
+                ees' 4  
+                f' 4  
+                \bar "|"  %{ end measure 11 %} 
+                g' 8  
+                f' 4  
+                g' 8  
+                f' 4  
+                ees' 4  
+                \bar "|"  %{ end measure 12 %} 
+                ees' 4  
+                bes 4  
+                bes' 4  
+                a 4  
+                \bar "|"  %{ end measure 13 %} 
+                c' 4  
+                \bar "|."  %{ end measure 14 %} 
+                 } 
+               
+ 
+           } 
+         
+ 
+  } 
+ 
+\paper { }
+\layout {
+  \context {
+    \RemoveEmptyStaffContext
+    \override VerticalAxisGroup #'remove-first = ##t
+  }
+ }
+ 
