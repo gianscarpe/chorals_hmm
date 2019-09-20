@@ -2,6 +2,11 @@
 {% block content %}
     <form action="sample" method="POST" enctype = "multipart/form-data">
      <h3>Generate music</h3></th>
+        Framework selection:
+                <select style="width:25%" name="generator_framework" class="selectpicker form-control">
+                    <option value="hmml">hmml</option>
+                    <option value="pom">pomegranate</option>
+                </select></br></br>
         <input type = "file" name = "model"></br>
         <button type="submit" class = "btn btn-success">Generate</button>
     </form>
