@@ -1,23 +1,25 @@
 {% extends 'bootstrap/base.html' %}
 {% block content %}
-    <h1>Hidden Markov Model - Bach Chorales</h1>
-    <form action = "/" method = "GET">
-        <select style="width:25%" name="hmm_type" class="selectpicker form-control">
-            <option value="hmm">HMM</option>
-            <option value="fhmm">FHMM</option>
-        </select></br>
-        <table style="width:25%">
-           <tr>
-             <th><h3>Train HMM</h3></th>
-             <th>
-                 <button type="submit" name="train" value="train" class = "btn btn-success">>>></button>
-             </th>
-           </tr>
+     <body style = "padding-left: 30%">
+        <h1>Hidden Markov Model - Bach Chorales</h1>
+        <form action = "/" method = "GET">
+            <select style="width:25%" name="hmm_type" class="selectpicker form-control">
+                <option value="hmm">HMM</option>
+                <option value="fhmm">FHMM</option>
+            </select></br>
+            <table style="width:25%">
+               <tr>
+                 <th><h3>Train HMM</h3></th>
+                 <th>
+                     <button type="submit" name="train" value="train" class = "btn btn-success">>>></button>
+                 </th>
+               </tr>
 
-           <tr>
-             <th><h3>Generate music</h3></th>
-             <th><button type="submit" name="generate" value="generate" class = "btn btn-success">>>></button></th>
-           </tr>
-        </table>
-    </form>
+               <tr>
+                 <th><h3>Generate music</h3></th>
+                 <th><button type="submit" name="generate" value="generate" class = "btn btn-success">>>></button></th>
+               </tr>
+            </table>
+        </form>
+     </body>
 {% endblock %}

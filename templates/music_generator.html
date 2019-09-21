@@ -1,5 +1,6 @@
 {% extends 'bootstrap/base.html' %}
 {% block content %}
+<body style = "padding-left: 15%">
     <form action="sample" method="POST" enctype = "multipart/form-data">
      <h3>Generate music</h3></th>
         {% if type == "hmm" %}
@@ -22,5 +23,5 @@
     {% endif %}
     </br></br></br>
     <a href={{link}} class="btn btn-primary" role="button">Home</a>
-
+</body>
 {% endblock %}

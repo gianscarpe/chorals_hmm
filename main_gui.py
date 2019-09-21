@@ -46,8 +46,8 @@ def test_hmm(model, testset, framework):
         likelihoods = numpy.array([model.log_probability(numpy.array(song), check_input=False) for song in testset],
                                   dtype=numpy.float64)
     infs = sum(1 if math.isinf(ll) else 0 for ll in likelihoods)
+    likelihoods = [ll for ll in likelihoods if not math.isinf(ll)]
     result = numpy.mean(likelihoods)
-    print(infs, result)
     result_string = "AVG: {}".format(result)
     infs_string = '#infs {} on {}-length'.format(infs, len(likelihoods))
     return infs_string, result_string
@@ -55,7 +55,7 @@ def test_hmm(model, testset, framework):
 def train_hmm(n_components, n_iter, n_features, trainset, trainset_lengths, size, framework):
     if framework == "hmml":
         print("Using hmml")
-        model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter)
+        model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter, init_params='ste')
         model.n_features = n_features
         model.fit(numpy.concatenate(trainset), trainset_lengths)
         fw = "hmml"

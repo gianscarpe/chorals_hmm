@@ -72,6 +72,7 @@ def training():
             if framework == "hmml":
                 obs_train, train_lengths = hmm.prepare_dataset(trainset)
                 obs_vocab = [numpy.array([[i] for i, _ in enumerate(vocabs)]).reshape(-1, 1)]
+                numpy.random.shuffle(obs_vocab[0])
                 train_lengths.insert(0, len(vocabs))
                 obs_train = obs_vocab + obs_train
             else:
