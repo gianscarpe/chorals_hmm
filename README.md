@@ -39,7 +39,6 @@ Arguments:
 You can train a FHMM model using `python main_fhmm.py` 
 HMM arguments:
 ``` 
--M: numeber of chains
 -K: dimension of states alphabet
 -N: number of iterations
  ``` 
@@ -47,7 +46,7 @@ Dataset arguments:
  ```
  --dataset-dir: path to dataset directory
  --trainset-name: name of the dataset of training
-  --trainset-size: ['all', int_value] split train/test
+ --trainset-size: ['all', int_value] split train/test
  --testset-name: name of the dataset of test
 
   ```
@@ -81,7 +80,7 @@ Dataset arguments:
  ```
  --dataset-dir: path to dataset directory
  --trainset-name: name of the dataset of training
-  --trainset-size: ['all', int_value] split train/test
+ --trainset-size: ['all', int_value] split train/test
  --testset-name: name of the dataset of test
 
   ```
