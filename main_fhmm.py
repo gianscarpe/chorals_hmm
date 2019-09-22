@@ -15,12 +15,11 @@ EM steps: 30 +- 12
 K: from 2 to 6
 M: from 2 to 9
 
-'''
 
 music21.environment.set('musicxmlPath', '/usr/bin/musescore')
 music21.environment.set('graphicsPath', '/usr/bin/musescore')
 music21.environment.set('musescoreDirectPNGPath', '/usr/bin/musescore')
-
+'''
 def train(params, M, K, n_iterations, model_name, verbose, random_seed=42):
     print(" -- Training FHMM --\n")
     random_state = numpy.random.RandomState(random_seed)
@@ -39,9 +38,9 @@ def train(params, M, K, n_iterations, model_name, verbose, random_seed=42):
 
     hmm = FullDiscreteFactorialHMM(params=params, n_steps=100,
                                    calculate_on_init=True)
-    hmm = hmm.EM(trainset, n_iterations=n_iterations,
+    hmm_trained = hmm.EM(trainset, n_iterations=n_iterations,
                  verbose=verbose)
-    return hmm
+    return hmm_trained
 
 
 def test(model, testset):
@@ -58,7 +57,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train and test FHMM')
     parser.add_argument('-K', type=int, default=2, help='value K')
     parser.add_argument('-M', type=int, default=2, help='value M of states')
-    parser.add_argument('-N', type=int, default=15, help='Number of iterations')
+    parser.add_argument('-N', type=int, default=30, help='Number of iterations')
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="increase output verbosity")
     parser.add_argument("-s", "--save-model", action="store_true",
