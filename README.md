@@ -120,5 +120,5 @@ Please respect the license and cite us.
 You can find us at:
 
 @gianscarpe: gianluca[at]scarpellini.cloud
-@belerico:
+@belerico: f.belotti8[at]campus.unimib.it or belo.fede[at]outlook.com
 ``` 
