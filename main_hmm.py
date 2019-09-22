@@ -116,13 +116,15 @@ if __name__ == "__main__":
     if args.framework == 'hmml':
         obs_train, train_lengths = prepare_dataset(trainset)
         obs_test, test_lengths = prepare_dataset(testset)
-        obs_vocab = [numpy.array([[i] for i, _ in enumerate(vocabs)]).reshape(-1, 1)]
-        numpy.random.shuffle(obs_vocab[0])
-        train_lengths.insert(0, len(vocabs))
+        # obs_vocab = [numpy.array([[i] for i, _ in enumerate(vocabs)]).reshape(-1, 1)]
+        # numpy.random.shuffle(obs_vocab[0])
+        # train_lengths.insert(0, len(vocabs))
+
         # Since hmmlearn does not support unseen observations
         # we inject at first all the observations that the model
         # can possible emit, namely our vocab dataset [0, 1, 2, ..., len(vocab) - 1]
-        obs_train = obs_vocab + obs_train
+        
+        # obs_train = obs_vocab + obs_train
     elif args.framework == 'pom':
         obs_train = trainset
         train_lengths = None
@@ -135,7 +137,7 @@ if __name__ == "__main__":
     model_name = args.framework + '-M-' + str(n_components) + '-ts-' + str(trainset_size) + '-nit-' + str(n_iter)
 
     if not args.skip_training:
-        # hmm.MultinomialHMM._check_input_symbols = lambda *_: True
+        hmm.MultinomialHMM._check_input_symbols = lambda *_: True
         model = train(n_components, n_iter, len(vocabs), obs_train, train_lengths, args.framework)
         if args.save_model:
             save_pickle(model, os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
