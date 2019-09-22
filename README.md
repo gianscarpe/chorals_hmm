@@ -1,6 +1,14 @@
-# README
+# Bach Chorales
 
-## Params
+##Usage
+
+Scriviamo come si usa il main
+
+##HMM
+```
+```
+
+## FHMM
 
 ```
 
