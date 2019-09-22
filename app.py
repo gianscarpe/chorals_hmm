@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, session
 from flask_bootstrap import Bootstrap
 import os
 import numpy
-import main_gui as hmm
+import gui_logic as hmm
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)

@@ -1,3 +1,9 @@
+'''
+We've used a modified version of factorial_hmm by @regevs. We claim no copyright
+for the following code.
+You can find the original version at https://github.com/regevs/factorial_hmm
+'''
+
 import numpy as np
 
 import itertools
