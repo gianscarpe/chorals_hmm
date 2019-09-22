@@ -29,10 +29,11 @@ def test(model, testset, test_lengths, framework):
     print('#infs {} on {}-length'.format(infs, len(likelihoods)))
     return avg, infs
 
-def train(n_components, n_iter, n_features, trainset, trainset_lengths, framework):
+def train(n_components, n_iter, n_features, trainset, trainset_lengths, framework, tol):
     if framework == 'hmml':
         print(' -- TRAINING WITH hmmlearn --\n')
-        model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter, init_params='ste')
+        hmm.MultinomialHMM._check_input_symbols = lambda *_: True
+        model = hmm.MultinomialHMM(n_components=n_components, n_iter=n_iter, tol=tol)
         model.monitor_.verbose = args.verbose
         model.n_features = n_features
         model.fit(numpy.concatenate(trainset), trainset_lengths)
@@ -45,7 +46,8 @@ def train(n_components, n_iter, n_features, trainset, trainset_lengths, framewor
                     algorithm='baum-welch',
                     min_iterations=0,
                     max_iterations=n_iter,
-                    verbose=args.verbose)
+                    verbose=args.verbose,
+                    stop_threshold=tol)
         model.bake(verbose=args.verbose)
         print(model.state_count())
     return model
@@ -66,6 +68,8 @@ if __name__ == "__main__":
                         help="increase output verbosity")
     parser.add_argument("-s", "--save-model", action="store_true",
                         help="Save the trained model")
+    parser.add_argument('--tol', type=int, default=1e-4, action='store',
+                        help='Set the convergence tolerance')
     parser.add_argument('--trainset-size', type=str, action='store',
                         default='50',
                         help='Training set size')
@@ -134,13 +138,12 @@ if __name__ == "__main__":
         print('You must choose a valid framework: pom (pomegranate) or hhml (hmmlearn)')
         exit(1)
 
-    model_name = args.framework + '-M-' + str(n_components) + '-ts-' + str(trainset_size) + '-nit-' + str(n_iter)
+    model_name = 'unnorm-' + args.framework + '-M-' + str(n_components) + '-ts-' + str(trainset_size) + '-nit-' + str(n_iter)
 
     if not args.skip_training:
-        hmm.MultinomialHMM._check_input_symbols = lambda *_: True
-        model = train(n_components, n_iter, len(vocabs), obs_train, train_lengths, args.framework)
+        model = train(n_components, n_iter, len(vocabs), obs_train, train_lengths, args.framework, args.tol)
         if args.save_model:
-            save_pickle(model, os.path.join(MODELS_DIR, 'hmm', model_name + '.pkl'))
+            save_pickle(model, os.path.join(MODELS_DIR, 'hmm', 'norm', model_name + '.pkl'))
     else:
         if args.model_path is None:
             print('SPecify the model path running this command with --model-path PATH-TO-MODEL')
