@@ -16,10 +16,11 @@ K: from 2 to 6
 M: from 2 to 9
 
 
+'''
 music21.environment.set('musicxmlPath', '/usr/bin/musescore')
 music21.environment.set('graphicsPath', '/usr/bin/musescore')
 music21.environment.set('musescoreDirectPNGPath', '/usr/bin/musescore')
-'''
+
 def train(params, M, K, n_iterations, model_name, verbose, random_seed=42):
     print(" -- Training FHMM --\n")
     random_state = numpy.random.RandomState(random_seed)
