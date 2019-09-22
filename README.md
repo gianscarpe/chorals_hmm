@@ -5,15 +5,7 @@ model for prediction and sample of music.
 We compared HMM and FHMM, 
 using various library and trying with different hyper-parameters. 
 
-``` 
-Learning porpous only - no guarantee or assistance is provided.
-Please respect the license and cite us.
 
-You can find us at:
-
-@gianscarpe: gianluca[at]scarpellini.cloud
-@belerico:
-``` 
 
 ## Dependencies
 Packages needed to play MIDI song:
@@ -27,6 +19,8 @@ Packages needed to show scores:
 
 * musescore: `sudo apt install musescore`
 
+You can install instantiate a virtual environemnt of the project using 
+`conda env create --file=environment.yml`
 
 ## Usage
 
@@ -116,3 +110,15 @@ gunicorn app:app.py
 ## Report
 You can find complete report of the project at 
 `relazione/Scarpellini_Belotti_Samotti_relazione.pdf` (Italian Only)
+
+
+## LICENSE
+
+Learning porpous only - no guarantee or assistance is provided.
+Please respect the license and cite us.
+``` 
+You can find us at:
+
+@gianscarpe: gianluca[at]scarpellini.cloud
+@belerico:
+``` 
