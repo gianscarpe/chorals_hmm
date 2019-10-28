@@ -80,7 +80,7 @@ def training():
                 train_lengths = None
             model, name = hmm.train_hmm(K, iter, len(vocabs), obs_train, train_lengths, size, framework)
         else:
-            trainset, testset, vocabs = hmm.init(os.path.join(hmm.DATA_DIR, 'chorales', 'music21', 'chorales_states_dataset.pkl'), size, type)
+            trainset, testset, vocabs = hmm.init(os.path.join(hmm.DATA_DIR, 'music21', 'bach_states_dataset.pkl'), size, type)
             D = len(vocabs)
             model, name = hmm.train_fhmm(D, M, K, iter, size, trainset)
 
@@ -112,7 +112,7 @@ def testing():
                 dataset = hmm.load_pickle(os.path.join(hmm.DATA_DIR, 'music21', 'bach_states_dataset.pkl'))
                 testset = dataset[size:]
             else:
-                dataset = hmm.load_pickle(os.path.join(hmm.DATA_DIR, 'chorales', 'music21', 'chorales_states_dataset.pkl'))
+                dataset = hmm.load_pickle(os.path.join(hmm.DATA_DIR, 'music21', 'bach_states_dataset.pkl'))
                 testset = dataset[size:]
 
     if type == "hmm":

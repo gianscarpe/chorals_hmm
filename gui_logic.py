@@ -137,7 +137,7 @@ def test_fhmm(model, testset):
 
 def generate_sample_fhmm(model, model_name):
     print(" -- Generating MIDI --\n")
-    vocabs = load_pickle(os.path.join(DATA_DIR, 'chorales', 'music21', 'vocabs.pkl'))
+    vocabs = load_pickle(os.path.join(DATA_DIR, 'music21', 'vocabs.pkl'))
     _, sample = model.Simulate()
     sample = list(itertools.chain(*sample))[:50]
     stream = states2music21_stream(sample, vocabs, our=False)
