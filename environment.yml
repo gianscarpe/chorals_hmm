@@ -7,3 +7,6 @@ dependencies:
   - hmmlearn=*
   - MIDIUtil=*
   - music21=*
+  - flask=*
+  - flask_bootstrap=*
+  - pomegranate=*

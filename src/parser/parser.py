@@ -189,7 +189,6 @@ def parse_music21_dataset(
                     print('Something wrong accessing {} part'.format(instrument))
                     continue
                 if chosen_part is not None:
-                    print('LEN TIME SIG: ', len(song.flat.getElementsByClass(music21.meter.TimeSignature)))
                     if time_signature is not None:
                         if chosen_part.flat.getElementsByClass(music21.meter.TimeSignature)[0].ratioString != '4/4':
                             print('Changing time signature')
@@ -221,7 +220,6 @@ def parse_music21_dataset(
         print('Parsing our dataset')
         streams = chorales2music21_streams()
         for song in streams:
-            print('LEN TIME SIG: ', len(song.flat.getElementsByClass(music21.meter.TimeSignature)))
             if time_signature is not None:
                 if song.flat.getElementsByClass(music21.meter.TimeSignature)[0].ratioString != '4/4':
                     print('Changing time signature')

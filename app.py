@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, session
 from flask_bootstrap import Bootstrap
 import os
 import numpy
-import main_gui as hmm
+import gui_logic as hmm
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -60,12 +60,12 @@ def training():
             framework = parameters.get("framework")
             session['framework'] = framework
         else:
-            K = int(parameters.get('k_value'))
+            M = int(parameters.get('m_value'))
         size = parameters.get("size")
         if size != "all":
             size = int(parameters.get("size"))
         iter = int(parameters.get("n_iter"))
-        components = int(parameters.get("n_components"))
+        K = int(parameters.get("n_components"))
 
         if type == "hmm":
             trainset, testset, vocabs = hmm.init(os.path.join(hmm.DATA_DIR, 'music21', 'bach_states_dataset.pkl'), size, type)
@@ -78,11 +78,11 @@ def training():
             else:
                 obs_train = trainset
                 train_lengths = None
-            model, name = hmm.train_hmm(components, iter, len(vocabs), obs_train, train_lengths, size, framework)
+            model, name = hmm.train_hmm(K, iter, len(vocabs), obs_train, train_lengths, size, framework)
         else:
             trainset, testset, vocabs = hmm.init(os.path.join(hmm.DATA_DIR, 'chorales', 'music21', 'chorales_states_dataset.pkl'), size, type)
             D = len(vocabs)
-            model, name = hmm.train_fhmm(D, components, K, iter, size, trainset)
+            model, name = hmm.train_fhmm(D, M, K, iter, size, trainset)
 
         session['model'] = name
         session['size'] = size

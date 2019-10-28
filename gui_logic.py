@@ -118,7 +118,7 @@ def train_fhmm(D, M, K, n_iterations, size, trainset, random_seed=42):
         R /= R.sum()
         params['obs_given_hidden'][list(st) + [Ellipsis]] = R
 
-    hmm = FullDiscreteFactorialHMM(params=params, n_steps=100, calculate_on_init=True)
+    hmm = FullDiscreteFactorialHMM(params=params, n_steps=1000, calculate_on_init=True)
     hmm = hmm.EM(trainset, n_iterations=n_iterations)
 
     model_name = f"K-{K}-M-{M}-ts-{size}-nit-{n_iterations}"

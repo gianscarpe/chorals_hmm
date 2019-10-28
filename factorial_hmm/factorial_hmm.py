@@ -1,3 +1,9 @@
+'''
+We've used a modified version of factorial_hmm by @regevs. We claim no copyright
+for the following code.
+You can find the original version at https://github.com/regevs/factorial_hmm
+'''
+
 import numpy as np
 
 import itertools
@@ -702,18 +708,17 @@ class FullDiscreteFactorialHMM(FactorialHMMDiscreteObserved):
         H = FullDiscreteFactorialHMM(params, self.n_steps, True)
 
         log_likelihood_list = []
-        params_list = []
         while True:
+            stats = self.initialize()
             for observation in observed_states:
                 alphas, betas, gammas, scaling_constants, log_likelihood = H.EStep(
                     observation)
-                params = self.update_params(observation, alphas, betas,
+                stats = self.update_params(observation, alphas, betas,
                                             gammas, scaling_constants, params)
 
-                params_list.append(params)
                 log_likelihood_list.append(log_likelihood)
 
-            new_params = H.normalize_params(params)
+            new_params = H.normalize_params(stats)
             new_log_likelihood = np.mean(np.array(log_likelihood_list))
             H = FullDiscreteFactorialHMM(new_params, self.n_steps, True)
 
@@ -733,6 +738,13 @@ class FullDiscreteFactorialHMM(FactorialHMMDiscreteObserved):
             old_log_likelihood = new_log_likelihood
 
         return H
+
+    def initialize(self):
+        params = copy.deepcopy(self.params)
+        params['initial_hidden_state'].fill(0)
+        params['transition_matrices'].fill(0)
+        params['obs_given_hidden'].fill(0)
+        return params
 
     def update_params(self, observed_states, alphas, betas, gammas,
                       scaling_constants, params):
