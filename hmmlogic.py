@@ -48,7 +48,7 @@ def sample():
             model = hmm.load_pickle(os.path.join(hmm.MODELS_DIR, 'fhmm', model_name))
             image, midi = hmm.generate_sample_fhmm(model, model_name)
     print(image,midi)
-    return render_template("music_generator.html", image = image, link = "/", midi = midi)
+    return render_template("music_generator.html", image = image, link = "/", midi = midi, type = type)
 
 @app.route('/train', methods = ['POST'])
 def training():

@@ -89,7 +89,7 @@ def generate_sample_hmm(model, model_name, framework):
     conv = music21.converter.subConverters.ConverterLilypond()
     conv.write(stream, fmt='lilypond', fp=os.path.join(BASE_DIR, 'static', 'scores', 'hmm', model_name), subformats=['png'])
     image = os.path.join('static', 'scores', 'hmm', model_name) + ".png"
-    files = os.listdir(os.path.join(BASE_DIR, 'static', 'scores'))
+    files = os.listdir(os.path.join(BASE_DIR, 'static', 'scores', 'hmm'))
     for item in files:
         if item.endswith(".eps") or item.endswith(".count") or item.endswith(".tex") or item.endswith(".texi") or item.endswith(".pkl"):
             os.remove(os.path.join(BASE_DIR, 'static', 'scores', 'hmm', item))
